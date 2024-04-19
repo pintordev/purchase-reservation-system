@@ -8,6 +8,7 @@ import com.pintor.purchase_reservation_system.domain.member_module.member.respon
 import com.pintor.purchase_reservation_system.domain.member_module.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RequestMapping(value = "/api/members", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @RestController
@@ -26,6 +28,8 @@ public class MemberController {
 
     @PostMapping
     public ResponseEntity signup(@Valid @RequestBody MemberSignupRequest request, BindingResult bindingResult) {
+
+        log.info("signup request: {}", request);
 
         Member member = this.memberService.signup(request, bindingResult);
 

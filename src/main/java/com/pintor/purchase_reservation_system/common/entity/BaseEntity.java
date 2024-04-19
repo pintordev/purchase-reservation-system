@@ -22,9 +22,11 @@ public class BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(columnDefinition = "TIMESTAMP")
     @CreatedDate
     private LocalDateTime createAt;
 
+    @Column(columnDefinition = "TIMESTAMP")
     @LastModifiedDate
     private LocalDateTime updateAt;
 }
