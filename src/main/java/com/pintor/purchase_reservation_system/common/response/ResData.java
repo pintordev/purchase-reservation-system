@@ -1,9 +1,11 @@
 package com.pintor.purchase_reservation_system.common.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
 public class ResData<T> {
 

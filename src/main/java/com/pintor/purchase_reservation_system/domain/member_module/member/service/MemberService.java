@@ -5,9 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pintor.purchase_reservation_system.common.errors.exception.ApiResException;
 import com.pintor.purchase_reservation_system.common.response.FailCode;
 import com.pintor.purchase_reservation_system.common.response.ResData;
+import com.pintor.purchase_reservation_system.common.service.EncryptService;
+import com.pintor.purchase_reservation_system.domain.member_module.member.dto.MemberDto;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.repository.MemberRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberSignupRequest;
+import com.pintor.purchase_reservation_system.domain.member_module.member.role.MemberRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,20 +27,42 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Service
 public class MemberService {
 
-    @Value("${api.key.kakao}")
-    private String kakaoApiKey;
+    @Value("${kakao.api.key}")
+    private String KAKAO_API_KEY;
 
     private final MemberRepository memberRepository;
+
+    private final EncryptService encryptService;
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
 
     @Transactional
-    public Member signup(MemberSignupRequest request, BindingResult bindingResult) {
+    public MemberDto signup(MemberSignupRequest request, BindingResult bindingResult) {
 
         this.signupValidate(request, bindingResult);
 
-        return null;
+        Member member = Member.builder()
+                .role(request.isAdmin() ? MemberRole.ADMIN : MemberRole.USER)
+                .email(this.encryptService.encrypt(request.getEmail()))
+                .name(this.encryptService.encrypt(request.getName()))
+                .password(this.encryptService.encode(request.getPassword()))
+                .address(this.encryptService.encrypt(request.getAddress()))
+                .build();
+
+        this.memberRepository.save(member);
+
+        return this.toDto(member);
+    }
+
+    private MemberDto toDto(Member member) {
+        return MemberDto.builder()
+                .role(member.getRole())
+                .email(this.encryptService.decrypt(member.getEmail()))
+                .name(this.encryptService.decrypt(member.getName()))
+                .address(this.encryptService.decrypt(member.getAddress()))
+                .emailVerified(member.isEmailVerified())
+                .build();
     }
 
     private void signupValidate(MemberSignupRequest request, BindingResult bindingResult) {
@@ -54,7 +79,7 @@ public class MemberService {
             );
         }
 
-        if (isEmailDuplicated(request.getEmail())) {
+        if (isDuplicatedEmail(request.getEmail())) {
 
             bindingResult.rejectValue("email", "unique violation", "email is already in use");
 
@@ -62,7 +87,7 @@ public class MemberService {
 
             throw new ApiResException(
                     ResData.of(
-                            FailCode.EMAIL_DUPLICATED,
+                            FailCode.DUPLICATED_EMAIL,
                             bindingResult
                     )
             );
@@ -98,8 +123,9 @@ public class MemberService {
 
     }
 
-    private boolean isEmailDuplicated(String email) {
-        return this.memberRepository.existsByEmail(email);
+    private boolean isDuplicatedEmail(String email) {
+        String encryptedEmail = this.encryptService.encrypt(email);
+        return this.memberRepository.existsByEmail(encryptedEmail);
     }
 
     private boolean isValidAddress(String zoneCode, String address) {
@@ -112,7 +138,7 @@ public class MemberService {
                         .path("/v2/local/search/address.json")
                         .queryParam("query", address)
                         .build())
-                .header(HttpHeaders.AUTHORIZATION, "KakaoAK " + kakaoApiKey)
+                .header(HttpHeaders.AUTHORIZATION, "KakaoAK " + KAKAO_API_KEY)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
                 .bodyToMono(String.class)

@@ -2,14 +2,13 @@ package com.pintor.purchase_reservation_system.domain.member_module.member.contr
 
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.response.SuccessCode;
-import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
+import com.pintor.purchase_reservation_system.domain.member_module.member.dto.MemberDto;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberSignupRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.response.MemberSignupResponse;
 import com.pintor.purchase_reservation_system.domain.member_module.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -31,13 +30,14 @@ public class MemberController {
 
         log.info("signup request: {}", request);
 
-        Member member = this.memberService.signup(request, bindingResult);
+        MemberDto memberDto = this.memberService.signup(request, bindingResult);
 
+        ResData resData = ResData.of(
+                SuccessCode.SIGNUP,
+                MemberSignupResponse.of(memberDto)
+        );
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(ResData.of(
-                        SuccessCode.SIGNUP,
-                        MemberSignupResponse.of(member)
-                ));
+                .status(resData.getStatus())
+                .body(resData);
     }
 }
