@@ -6,6 +6,7 @@ import com.pintor.purchase_reservation_system.common.errors.exception.ApiResExce
 import com.pintor.purchase_reservation_system.common.response.FailCode;
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.service.EncryptService;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.service.AuthService;
 import com.pintor.purchase_reservation_system.domain.member_module.member.dto.MemberDto;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.repository.MemberRepository;
@@ -33,6 +34,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     private final EncryptService encryptService;
+    private final AuthService authService;
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
@@ -57,6 +59,7 @@ public class MemberService {
 
     private MemberDto toDto(Member member) {
         return MemberDto.builder()
+                .id(member.getId())
                 .role(member.getRole())
                 .email(this.encryptService.decrypt(member.getEmail()))
                 .name(this.encryptService.decrypt(member.getName()))
@@ -159,5 +162,25 @@ public class MemberService {
         }
 
         return false;
+    }
+
+    @Transactional
+    public void verifyEmail(Long memberId) {
+        Member member = this.getMemberById(memberId);
+
+        member = member.toBuilder()
+                .emailVerified(true)
+                .build();
+
+        this.memberRepository.save(member);
+    }
+
+    private Member getMemberById(Long memberId) {
+        return this.memberRepository.findById(memberId)
+                .orElseThrow(() -> new ApiResException(
+                        ResData.of(
+                                FailCode.MEMBER_NOT_FOUND
+                        )
+                ));
     }
 }

@@ -6,7 +6,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum SuccessCode {
 
-    SIGNUP(HttpStatus.CREATED, "signup", "회원가입에 성공하였습니다.");
+    SIGNUP(HttpStatus.CREATED, "signup", "회원가입에 성공하였습니다"),
+    VERIFY_MAIL(HttpStatus.OK, "verify mail", "이메일 인증에 성공하였습니다");
 
     private HttpStatus status;
     private String code;

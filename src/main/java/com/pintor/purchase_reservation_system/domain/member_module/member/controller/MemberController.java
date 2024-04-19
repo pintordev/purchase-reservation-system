@@ -2,6 +2,8 @@ package com.pintor.purchase_reservation_system.domain.member_module.member.contr
 
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.response.SuccessCode;
+import com.pintor.purchase_reservation_system.common.service.MailService;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.service.AuthService;
 import com.pintor.purchase_reservation_system.domain.member_module.member.dto.MemberDto;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberSignupRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.response.MemberSignupResponse;
@@ -24,6 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
+    private final AuthService authService;
+    private final MailService mailService;
 
     @PostMapping
     public ResponseEntity signup(@Valid @RequestBody MemberSignupRequest request, BindingResult bindingResult) {
@@ -31,6 +35,8 @@ public class MemberController {
         log.info("signup request: {}", request);
 
         MemberDto memberDto = this.memberService.signup(request, bindingResult);
+        String code = this.authService.saveMailToken(memberDto.getId());
+        this.mailService.sendVerificationCode(memberDto.getEmail(), code);
 
         ResData resData = ResData.of(
                 SuccessCode.SIGNUP,

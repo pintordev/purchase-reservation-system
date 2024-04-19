@@ -19,6 +19,7 @@ public class SecurityConfig {
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
                                 .requestMatchers(HttpMethod.POST, "/api/members").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/auth/mail").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .cors(cors -> cors

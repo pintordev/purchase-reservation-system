@@ -27,6 +27,10 @@ public class ResData<T> {
         return new ResData<>(successCode, data);
     }
 
+    public static ResData of(SuccessCode successCode) {
+        return new ResData<>(successCode, null);
+    }
+
     private ResData(FailCode failCode, T data) {
         this.status = failCode.getStatus();
         this.success = false;
