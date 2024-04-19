@@ -36,4 +36,8 @@ public class ResData<T> {
     public static ResData of(FailCode failCode, BindingResult bindingResult) {
         return new ResData<>(failCode, bindingResult);
     }
+
+    public static ResData of(FailCode failCode) {
+        return new ResData<>(failCode, null);
+    }
 }
