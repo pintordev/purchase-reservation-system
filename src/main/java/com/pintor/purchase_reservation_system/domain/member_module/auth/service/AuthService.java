@@ -5,10 +5,13 @@ import com.pintor.purchase_reservation_system.common.response.FailCode;
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.entity.MailToken;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.MailTokenRepository;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthLoginRequest;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.response.AuthLoginResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
 
 import java.security.SecureRandom;
 
@@ -55,5 +58,16 @@ public class AuthService {
                         )
                 ));
         return mailToken.getMemberId();
+    }
+
+    @Transactional
+    public AuthLoginResponse login(AuthLoginRequest request, BindingResult bindingResult) {
+
+        // TODO : Implement login logic
+        String accessToken = this.authService.getAccessToken(member.getId());
+        String refreshToken = this.authService.getRefreshToken();
+        this.authService.saveAuthToken(member.getId(), refreshToken, accessToken);
+
+        return AuthLoginResponse.of(accessToken, refreshToken);
     }
 }

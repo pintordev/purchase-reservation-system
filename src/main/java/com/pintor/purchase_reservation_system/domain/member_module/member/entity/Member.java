@@ -18,6 +18,7 @@ import lombok.experimental.SuperBuilder;
 public class Member extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "varchar(255)")
     private MemberRole role;
 
     @Column(unique = true)
