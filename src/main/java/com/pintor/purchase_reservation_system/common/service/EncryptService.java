@@ -28,4 +28,8 @@ public class EncryptService {
     public String encode(String password) {
         return this.passwordEncoder.encode(password);
     }
+
+    public boolean passwordMatches(String password, String encodedPassword) {
+        return this.passwordEncoder.matches(password, encodedPassword);
+    }
 }

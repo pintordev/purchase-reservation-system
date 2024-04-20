@@ -1,7 +1,7 @@
 package com.pintor.purchase_reservation_system.domain.member_module.member.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.pintor.purchase_reservation_system.domain.member_module.member.dto.MemberDto;
+import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import lombok.Getter;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -10,11 +10,11 @@ public class MemberSignupResponse {
 
     private final String email;
 
-    private MemberSignupResponse(MemberDto memberDto) {
-        this.email = memberDto.getEmail();
+    private MemberSignupResponse(Member member) {
+        this.email = member.getEmail();
     }
 
-    public static MemberSignupResponse of(MemberDto memberDto) {
-        return new MemberSignupResponse(memberDto);
+    public static MemberSignupResponse of(Member member) {
+        return new MemberSignupResponse(member);
     }
 }
