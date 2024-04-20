@@ -55,4 +55,15 @@ public class AuthController {
                 .status(resData.getStatus())
                 .body(resData);
     }
+
+    @PostMapping(value = "/logout", consumes = MediaType.ALL_VALUE)
+    public ResponseEntity logout(HttpServletResponse response) {
+
+        ResData resData = ResData.of(
+                SuccessCode.LOGIN
+        );
+        return ResponseEntity
+                .status(resData.getStatus())
+                .body(resData);
+    }
 }

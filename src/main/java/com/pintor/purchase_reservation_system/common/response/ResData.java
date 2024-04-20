@@ -1,5 +1,6 @@
 package com.pintor.purchase_reservation_system.common.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
@@ -9,7 +10,9 @@ import org.springframework.validation.BindingResult;
 @Getter
 public class ResData<T> {
 
+    @JsonIgnore
     private final HttpStatus status;
+    @JsonIgnore
     private final boolean success;
     private final String code;
     private final String message;

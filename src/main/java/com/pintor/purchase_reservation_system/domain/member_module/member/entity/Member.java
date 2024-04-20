@@ -6,6 +6,12 @@ import com.pintor.purchase_reservation_system.domain.member_module.member.role.M
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @SuperBuilder(toBuilder = true)
@@ -32,4 +38,11 @@ public class Member extends BaseEntity {
     private String address;
 
     private boolean emailVerified;
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<MemberRole> authorities = List.of(this.getRole());
+        return authorities.stream()
+                .map(a -> new SimpleGrantedAuthority(a.getType()))
+                .collect(Collectors.toList());
+    }
 }

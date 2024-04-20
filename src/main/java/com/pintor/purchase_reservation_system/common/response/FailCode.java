@@ -17,6 +17,12 @@ public enum FailCode {
     // Auth Service Fail Code
     INVALID_MAIL_TOKEN(HttpStatus.BAD_REQUEST, "invalid mail token", "유효하지 않은 메일 토큰입니다"),
 
+    // Auth Fail Code
+    EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "expired access token", "인증 토큰이 만료되었습니다"),
+    INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "invalid access token", "유효하지 않은 인증 토큰입니다"),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "unauthorized", "인증되지 않은 사용자입니다"),
+    FORBIDDEN(HttpStatus.FORBIDDEN, "forbidden", "권한이 없습니다"),
+
     // Server Fail Code
     MAIL_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "mail send fail", "메일 발송 중 오류가 발생했습니다"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "internal server error", "서버 오류가 발생했습니다");
