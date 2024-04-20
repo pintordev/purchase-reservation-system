@@ -9,20 +9,24 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
+import org.springframework.data.redis.core.index.Indexed;
 
 @Getter
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@RedisHash(value = "mail_token")
-public class MailToken {
+@RedisHash(value = "auth_token")
+public class AuthToken {
 
     @Id
-    private String id;
+    private Long id;
 
-    private Long memberId;
+    private String refreshToken;
+
+    @Indexed
+    private String accessToken;
 
     @TimeToLive
-    @Value("${mail.expiration}")
+    @Value("${jwt.expiration.refresh_token}")
     private Long timeToLive;
 }

@@ -4,7 +4,10 @@ import com.pintor.purchase_reservation_system.common.errors.exception.ApiResExce
 import com.pintor.purchase_reservation_system.common.response.FailCode;
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.service.EncryptService;
+import com.pintor.purchase_reservation_system.common.util.JwtUtil;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.entity.AuthToken;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.entity.MailToken;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.AuthTokenRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.MailTokenRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthLoginRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.response.AuthLoginResponse;
@@ -26,8 +29,10 @@ public class AuthService {
 
     private final MailTokenRepository mailTokenRepository;
     private final MemberRepository memberRepository;
+    private final AuthTokenRepository authTokenRepository;
 
     private final EncryptService encryptService;
+    private final JwtUtil jwtUtil;
 
     @Transactional
     public String saveMailToken(Long memberId) {
@@ -70,13 +75,10 @@ public class AuthService {
     public AuthLoginResponse login(AuthLoginRequest request, BindingResult bindingResult) {
         
         Member member = this.loginValidate(request, bindingResult);
-
-        // TODO : Implement login logic
-//        String accessToken = this.getAccessToken(member.getId());
-//        String refreshToken = this.getRefreshToken();
-//        this.saveAuthToken(member.getId(), refreshToken, accessToken);
-        String accessToken = "";
-        String refreshToken = "";
+        
+        String accessToken = this.jwtUtil.genAccessToken(member);
+        String refreshToken = this.jwtUtil.genRefreshToken();
+        this.saveAuthToken(member, refreshToken, accessToken);
 
         return AuthLoginResponse.of(accessToken, refreshToken);
     }
@@ -127,5 +129,17 @@ public class AuthService {
         }
 
         return member;
+    }
+
+    @Transactional
+    private void saveAuthToken(Member member, String refreshToken, String accessToken) {
+
+        AuthToken authToken = AuthToken.builder()
+                .id(member.getId())
+                .refreshToken(refreshToken)
+                .accessToken(accessToken)
+                .build();
+
+        this.authTokenRepository.save(authToken);
     }
 }

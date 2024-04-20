@@ -18,6 +18,6 @@ public class MemberConverter implements AttributeConverter<String, String> {
 
     @Override
     public String convertToEntityAttribute(String dbData) {
-        return this.encryptService.encrypt(dbData);
+        return this.encryptService.decrypt(dbData);
     }
 }
