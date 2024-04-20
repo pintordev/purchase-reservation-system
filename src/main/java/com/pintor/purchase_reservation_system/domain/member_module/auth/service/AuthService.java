@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
 import java.security.SecureRandom;
-import java.util.Optional;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -73,9 +72,11 @@ public class AuthService {
         Member member = this.loginValidate(request, bindingResult);
 
         // TODO : Implement login logic
-        String accessToken = this.authService.getAccessToken(member.getId());
-        String refreshToken = this.authService.getRefreshToken();
-        this.authService.saveAuthToken(member.getId(), refreshToken, accessToken);
+//        String accessToken = this.getAccessToken(member.getId());
+//        String refreshToken = this.getRefreshToken();
+//        this.saveAuthToken(member.getId(), refreshToken, accessToken);
+        String accessToken = "";
+        String refreshToken = "";
 
         return AuthLoginResponse.of(accessToken, refreshToken);
     }

@@ -7,7 +7,6 @@ import com.pintor.purchase_reservation_system.common.response.FailCode;
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.service.EncryptService;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.service.AuthService;
-import com.pintor.purchase_reservation_system.domain.member_module.member.dto.MemberDto;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.repository.MemberRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberSignupRequest;
@@ -40,32 +39,19 @@ public class MemberService {
     private final ObjectMapper objectMapper;
 
     @Transactional
-    public MemberDto signup(MemberSignupRequest request, BindingResult bindingResult) {
+    public Member signup(MemberSignupRequest request, BindingResult bindingResult) {
 
         this.signupValidate(request, bindingResult);
 
         Member member = Member.builder()
                 .role(request.isAdmin() ? MemberRole.ADMIN : MemberRole.USER)
-                .email(this.encryptService.encrypt(request.getEmail()))
-                .name(this.encryptService.encrypt(request.getName()))
+                .email(request.getEmail())
+                .name(request.getName())
                 .password(this.encryptService.encode(request.getPassword()))
-                .address(this.encryptService.encrypt(request.getAddress()))
+                .address(request.getAddress())
                 .build();
 
-        this.memberRepository.save(member);
-
-        return this.toDto(member);
-    }
-
-    private MemberDto toDto(Member member) {
-        return MemberDto.builder()
-                .id(member.getId())
-                .role(member.getRole())
-                .email(this.encryptService.decrypt(member.getEmail()))
-                .name(this.encryptService.decrypt(member.getName()))
-                .address(this.encryptService.decrypt(member.getAddress()))
-                .emailVerified(member.isEmailVerified())
-                .build();
+        return this.memberRepository.save(member);
     }
 
     private void signupValidate(MemberSignupRequest request, BindingResult bindingResult) {

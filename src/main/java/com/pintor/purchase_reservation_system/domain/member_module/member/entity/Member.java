@@ -1,11 +1,9 @@
 package com.pintor.purchase_reservation_system.domain.member_module.member.entity;
 
 import com.pintor.purchase_reservation_system.common.entity.BaseEntity;
+import com.pintor.purchase_reservation_system.domain.member_module.member.converter.MemberConverter;
 import com.pintor.purchase_reservation_system.domain.member_module.member.role.MemberRole;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -21,13 +19,16 @@ public class Member extends BaseEntity {
     @Column(columnDefinition = "varchar(255)")
     private MemberRole role;
 
+    @Convert(converter = MemberConverter.class)
     @Column(unique = true)
     private String email;
 
+    @Convert(converter = MemberConverter.class)
     private String name;
 
     private String password;
 
+    @Convert(converter = MemberConverter.class)
     private String address;
 
     private boolean emailVerified;

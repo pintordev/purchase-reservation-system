@@ -4,7 +4,7 @@ import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.response.SuccessCode;
 import com.pintor.purchase_reservation_system.common.service.MailService;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.service.AuthService;
-import com.pintor.purchase_reservation_system.domain.member_module.member.dto.MemberDto;
+import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberSignupRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.response.MemberSignupResponse;
 import com.pintor.purchase_reservation_system.domain.member_module.member.service.MemberService;
@@ -34,13 +34,13 @@ public class MemberController {
 
         log.info("signup request: {}", request);
 
-        MemberDto memberDto = this.memberService.signup(request, bindingResult);
-        String code = this.authService.saveMailToken(memberDto.getId());
-        this.mailService.sendVerificationCode(memberDto.getEmail(), code);
+        Member member = this.memberService.signup(request, bindingResult);
+        String code = this.authService.saveMailToken(member.getId());
+        this.mailService.sendVerificationCode(member.getEmail(), code);
 
         ResData resData = ResData.of(
                 SuccessCode.SIGNUP,
-                MemberSignupResponse.of(memberDto)
+                MemberSignupResponse.of(member)
         );
         return ResponseEntity
                 .status(resData.getStatus())
