@@ -6,6 +6,7 @@ import com.pintor.purchase_reservation_system.domain.member_module.auth.request.
 import com.pintor.purchase_reservation_system.domain.member_module.auth.response.AuthLoginResponse;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.service.AuthService;
 import com.pintor.purchase_reservation_system.domain.member_module.member.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -57,9 +58,9 @@ public class AuthController {
     }
 
     @PostMapping(value = "/logout", consumes = MediaType.ALL_VALUE)
-    public ResponseEntity logout(HttpServletResponse response) {
+    public ResponseEntity logout(HttpServletRequest request) {
 
-        String accessToken = response.getHeader("Authorization").substring("Bearer ".length());
+        String accessToken = request.getHeader("Authorization").substring("Bearer ".length());
         this.authService.logout(accessToken);
 
         ResData resData = ResData.of(
