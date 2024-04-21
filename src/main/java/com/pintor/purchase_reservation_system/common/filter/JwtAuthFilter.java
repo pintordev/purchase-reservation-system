@@ -1,6 +1,8 @@
 package com.pintor.purchase_reservation_system.common.filter;
 
 import com.pintor.purchase_reservation_system.common.util.JwtUtil;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.entity.AuthToken;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.AuthTokenRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.repository.MemberRepository;
 import jakarta.servlet.FilterChain;
@@ -22,6 +24,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final MemberRepository memberRepository;
+    private final AuthTokenRepository authTokenRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -38,9 +41,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             } else {
                 Member member = this.memberRepository.findById(id)
                         .orElse(null);
+                AuthToken authToken = this.authTokenRepository.findByAccessToken(accessToken)
+                        .orElse(null);
 
-                if (member == null) {
-                     request.setAttribute("token_validation_level", -3);
+                if (member == null || authToken == null) {
+                     request.setAttribute("token_validation_level", -3L);
                 } else {
                     this.forceAuthentication(member);
                 }

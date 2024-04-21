@@ -142,4 +142,15 @@ public class AuthService {
 
         this.authTokenRepository.save(authToken);
     }
+
+    @Transactional
+    public void logout(String accessToken) {
+
+        AuthToken authToken = this.authTokenRepository.findByAccessToken(accessToken)
+                .orElse(null);
+
+        if (authToken != null) {
+            this.authTokenRepository.delete(authToken);
+        }
+    }
 }
