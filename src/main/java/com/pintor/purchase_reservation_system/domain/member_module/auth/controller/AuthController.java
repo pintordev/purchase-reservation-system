@@ -59,8 +59,11 @@ public class AuthController {
     @PostMapping(value = "/logout", consumes = MediaType.ALL_VALUE)
     public ResponseEntity logout(HttpServletResponse response) {
 
+        String accessToken = response.getHeader("Authorization").substring("Bearer ".length());
+        this.authService.logout(accessToken);
+
         ResData resData = ResData.of(
-                SuccessCode.LOGIN
+                SuccessCode.LOGOUT
         );
         return ResponseEntity
                 .status(resData.getStatus())
