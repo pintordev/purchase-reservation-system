@@ -12,9 +12,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.MapBindingResult;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -98,5 +100,18 @@ public class ProductService {
                                 FailCode.PRODUCT_NOT_FOUND
                         )
                 ));
+    }
+
+    @Transactional
+    public Product create(String name, Integer price, String description) {
+
+        Product product = Product.builder()
+                .name(name)
+                .price(price)
+                .description(description)
+                .openedAt(LocalDateTime.now())
+                .build();
+
+        return this.productRepository.save(product);
     }
 }

@@ -49,7 +49,7 @@ public class ProductController {
 
             ResData resData = ResData.of(
                     SuccessCode.PRODUCT_DETAIL,
-                    product
+                    ProductDetailResponse.of(product)
             );
             return ResponseEntity
                     .status(resData.getStatus())
