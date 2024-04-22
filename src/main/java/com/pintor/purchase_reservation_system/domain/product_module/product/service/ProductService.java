@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class ProductService {
