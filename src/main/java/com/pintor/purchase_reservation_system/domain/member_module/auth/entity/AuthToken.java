@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
@@ -27,6 +26,5 @@ public class AuthToken {
     private String accessToken;
 
     @TimeToLive
-    @Value("${jwt.expiration.refresh_token}")
     private Long timeToLive;
 }

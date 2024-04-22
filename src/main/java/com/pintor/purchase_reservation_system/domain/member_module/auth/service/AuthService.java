@@ -16,6 +16,7 @@ import com.pintor.purchase_reservation_system.domain.member_module.member.entity
 import com.pintor.purchase_reservation_system.domain.member_module.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -27,6 +28,12 @@ import java.security.SecureRandom;
 @RequiredArgsConstructor
 @Service
 public class AuthService {
+
+    @Value("${mail.expiration}")
+    private Long mailTokenExpiration;
+
+    @Value("${jwt.expiration.refresh_token}")
+    private Long authTokenExpiration;
 
     private final MailTokenRepository mailTokenRepository;
     private final MemberRepository memberRepository;
@@ -43,6 +50,7 @@ public class AuthService {
         MailToken mailToken = MailToken.builder()
                 .id(code)
                 .memberId(memberId)
+                .timeToLive(this.mailTokenExpiration)
                 .build();
 
         this.mailTokenRepository.save(mailToken);
@@ -169,6 +177,7 @@ public class AuthService {
                 .id(member.getId())
                 .refreshToken(refreshToken)
                 .accessToken(accessToken)
+                .timeToLive(this.authTokenExpiration)
                 .build();
 
         this.authTokenRepository.save(authToken);
