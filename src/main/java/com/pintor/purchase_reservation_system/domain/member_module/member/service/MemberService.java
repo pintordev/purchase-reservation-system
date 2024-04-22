@@ -8,6 +8,7 @@ import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.service.EncryptService;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.repository.MemberRepository;
+import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberProfileUpdateRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberSignupRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.role.MemberRole;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -168,5 +170,91 @@ public class MemberService {
                                 FailCode.MEMBER_NOT_FOUND
                         )
                 ));
+    }
+
+    private Member getMemberByEmail(String username) {
+        return this.memberRepository.findByEmail(username)
+                .orElseThrow(() -> new ApiResException(
+                        ResData.of(
+                                FailCode.MEMBER_NOT_FOUND
+                        )
+                ));
+    }
+
+    @Transactional
+    public void profileUpdate(MemberProfileUpdateRequest request, BindingResult bindingResult, User user) {
+
+        this.profileUpdateValidate(request, bindingResult);
+
+        Member member = this.getMemberByEmail(user.getUsername());
+
+        member = member.toBuilder()
+                .phoneNumber(request.getPhoneNumber() != null ? request.getPhoneNumber() : member.getPhoneNumber())
+                .zoneCode(request.getZoneCode() != null ? request.getZoneCode() : member.getZoneCode())
+                .address(request.getAddress() != null ? request.getAddress() : member.getAddress())
+                .subAddress(request.getSubAddress() != null ? request.getSubAddress() :
+                        request.getZoneCode() != null && request.getAddress() != null ? "" : member.getSubAddress())
+                .build();
+
+        this.memberRepository.save(member);
+    }
+
+    private void profileUpdateValidate(MemberProfileUpdateRequest request, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+
+            log.error("binding error: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.BINDING_ERROR,
+                            bindingResult
+                    )
+            );
+        }
+
+        if ((request.getZoneCode() != null && request.getAddress() == null)
+                || (request.getZoneCode() == null && request.getAddress() != null)) {
+
+            bindingResult.rejectValue("zoneCode", "only one of zoneCode and address is null", "zoneCode and address must be both null or both not null");
+            bindingResult.rejectValue("address", "only one of zoneCode and address is null", "zoneCode and address must be both null or both not null");
+
+            log.error("invalid address: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INVALID_ZONECODE_AND_ADDRESS,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (request.getSubAddress() != null && (request.getZoneCode() == null || request.getAddress() == null)) {
+
+            bindingResult.rejectValue("subAddress", "subAddress without zoneCode and address", "subAddress must be null when zoneCode and address are null");
+
+            log.error("invalid address: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INVALID_SUBADDRESS,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (request.getZoneCode() != null && request.getAddress() != null && !isValidAddress(request.getZoneCode(), request.getAddress())) {
+
+            bindingResult.rejectValue("address", "invalid address", "invalid address");
+
+            log.error("invalid address: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INVALID_ADDRESS,
+                            bindingResult
+                    )
+            );
+        }
     }
 }
