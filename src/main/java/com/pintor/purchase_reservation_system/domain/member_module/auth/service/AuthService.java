@@ -128,6 +128,17 @@ public class AuthService {
             );
         }
 
+        if (!member.isEmailVerified()) {
+
+            log.error("email not verified: {}", request.getEmail());
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.EMAIL_NOT_VERIFIED
+                    )
+            );
+        }
+
         return member;
     }
 
