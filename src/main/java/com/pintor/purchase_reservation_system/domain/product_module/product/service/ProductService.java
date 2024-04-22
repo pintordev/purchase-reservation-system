@@ -90,4 +90,13 @@ public class ProductService {
             );
         }
     }
+
+    public Product getProductDetail(Long id) {
+        return this.productRepository.findById(id)
+                .orElseThrow(() -> new ApiResException(
+                        ResData.of(
+                                FailCode.PRODUCT_NOT_FOUND
+                        )
+                ));
+    }
 }

@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -47,5 +48,27 @@ public class PagedData<T> {
 
     public static <T> PagedData<T> of(Page<T> pagedList) {
         return new PagedData<>(pagedList);
+    }
+
+    public PagedData(PagedData<T> pagedData, List<T> mappedData) {
+        this.list = mappedData;
+        this.page = pagedData.page;
+        this.size = pagedData.size;
+        this.sort = pagedData.sort;
+        this.firstPage = pagedData.firstPage;
+        this.prevPage = pagedData.prevPage;
+        this.nextPage = pagedData.nextPage;
+        this.lastPage = pagedData.lastPage;
+        this.first = pagedData.first;
+        this.last = pagedData.last;
+        this.totalPages = pagedData.totalPages;
+        this.totalElements = pagedData.totalElements;
+    }
+
+    public <R> PagedData<R> map(Function<? super T, ? extends R> converter) {
+        List<R> mappedData = list.stream()
+                .map(converter)
+                .collect(Collectors.toList());
+        return new PagedData<R>((PagedData<R>) this, mappedData);
     }
 }
