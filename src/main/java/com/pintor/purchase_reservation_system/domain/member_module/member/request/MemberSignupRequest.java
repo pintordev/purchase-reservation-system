@@ -28,6 +28,10 @@ public class MemberSignupRequest {
     @NotBlank(message = "Password confirmation is required")
     private String passwordConfirm;
 
+    @NotBlank(message = "Phone number is required")
+    @Pattern(regexp = AppConfig.PHONE_NUMBER_REGEX, message = "Invalid phone number format")
+    private String phoneNumber;
+
     @NotBlank(message = "Zone code is required")
     private String zoneCode;
 

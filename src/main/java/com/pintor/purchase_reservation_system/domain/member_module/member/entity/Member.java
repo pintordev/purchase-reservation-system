@@ -35,7 +35,16 @@ public class Member extends BaseEntity {
     private String password;
 
     @Convert(converter = MemberConverter.class)
+    private String phoneNumber;
+
+    @Convert(converter = MemberConverter.class)
+    private String zoneCode;
+
+    @Convert(converter = MemberConverter.class)
     private String address;
+
+    @Convert(converter = MemberConverter.class)
+    private String subAddress;
 
     private boolean emailVerified;
 

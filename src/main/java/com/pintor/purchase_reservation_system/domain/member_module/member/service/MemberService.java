@@ -6,7 +6,6 @@ import com.pintor.purchase_reservation_system.common.errors.exception.ApiResExce
 import com.pintor.purchase_reservation_system.common.response.FailCode;
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.service.EncryptService;
-import com.pintor.purchase_reservation_system.domain.member_module.auth.service.AuthService;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.repository.MemberRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberSignupRequest;
@@ -33,7 +32,6 @@ public class MemberService {
     private final MemberRepository memberRepository;
 
     private final EncryptService encryptService;
-    private final AuthService authService;
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
@@ -48,7 +46,10 @@ public class MemberService {
                 .email(request.getEmail())
                 .name(request.getName())
                 .password(this.encryptService.encode(request.getPassword()))
+                .phoneNumber(request.getPhoneNumber())
+                .zoneCode(request.getZoneCode())
                 .address(request.getAddress())
+                .subAddress(request.getSubAddress() == null ? "" : request.getSubAddress())
                 .build();
 
         return this.memberRepository.save(member);
@@ -113,8 +114,7 @@ public class MemberService {
     }
 
     private boolean isDuplicatedEmail(String email) {
-        String encryptedEmail = this.encryptService.encrypt(email);
-        return this.memberRepository.existsByEmail(encryptedEmail);
+        return this.memberRepository.existsByEmail(email);
     }
 
     private boolean isValidAddress(String zoneCode, String address) {
