@@ -14,17 +14,17 @@ public class ListedData<R> {
 
     private final List<R> list;
 
-    private ListedData(List<R> list) {
-        this.list = list;
+    public <T> ListedData(List<T> data, Function<T,R> converter) {
+        if (data.isEmpty()) {
+            this.list = new ArrayList<>();
+            return;
+        }
+        this.list = data.stream()
+                .map(converter)
+                .collect(Collectors.toList());
     }
 
     public static <T, R> ListedData<R> of(List<T> data, Function<T, R> converter) {
-        if (data.isEmpty()) {
-            return new ListedData<>(new ArrayList<>());
-        }
-        List<R> mappedData = data.stream()
-                .map(converter)
-                .collect(Collectors.toList());
-        return new ListedData(mappedData);
+        return new ListedData(data, converter);
     }
 }

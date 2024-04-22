@@ -1,6 +1,5 @@
 package com.pintor.purchase_reservation_system.domain.product_module.product.controller;
 
-import com.pintor.purchase_reservation_system.common.response.PagedData;
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.response.SuccessCode;
 import com.pintor.purchase_reservation_system.domain.product_module.product.entity.Product;
@@ -9,6 +8,7 @@ import com.pintor.purchase_reservation_system.domain.product_module.product.resp
 import com.pintor.purchase_reservation_system.domain.product_module.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +29,7 @@ public class ProductController {
 
         log.info("product list request: page={}, size={}, sort={}, dir={}", page, size, sort, dir);
 
-        PagedData<Product> productList = this.productService.getProductList(page, size, sort, dir);
+        Page<Product> productList = this.productService.getProductList(page, size, sort, dir);
 
         ResData resData = ResData.of(
                 SuccessCode.PRODUCT_LIST,

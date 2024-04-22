@@ -8,6 +8,7 @@ import com.pintor.purchase_reservation_system.domain.product_module.product.enti
 import com.pintor.purchase_reservation_system.domain.product_module.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -29,7 +30,7 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public PagedData<Product> getProductList(int page, int size, String sort, String dir) {
+    public Page<Product> getProductList(int page, int size, String sort, String dir) {
 
         this.getProductListValidate(page, size, sort, dir);
 
@@ -38,7 +39,7 @@ public class ProductService {
 
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sorts));
 
-        return PagedData.of(this.productRepository.findAll(pageable));
+        return this.productRepository.findAll(pageable);
     }
 
     private void getProductListValidate(int page, int size, String sort, String dir) {
