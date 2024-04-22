@@ -1,5 +1,6 @@
 package com.pintor.purchase_reservation_system.domain.product_module.product.entity;
 
+import com.pintor.purchase_reservation_system.common.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.*;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Entity
-public class Product {
+public class Product extends BaseEntity {
 
     private String name;
 
