@@ -24,9 +24,9 @@ public class BaseEntity {
 
     @Column(columnDefinition = "TIMESTAMP")
     @CreatedDate
-    private LocalDateTime createAt;
+    private LocalDateTime createdAt;
 
     @Column(columnDefinition = "TIMESTAMP")
     @LastModifiedDate
-    private LocalDateTime updateAt;
+    private LocalDateTime updatedAt;
 }
