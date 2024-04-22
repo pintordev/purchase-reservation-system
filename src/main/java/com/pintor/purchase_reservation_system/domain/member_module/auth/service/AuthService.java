@@ -10,11 +10,13 @@ import com.pintor.purchase_reservation_system.domain.member_module.auth.entity.M
 import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.AuthTokenRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.MailTokenRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthLoginRequest;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthVerifyMailRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.response.AuthLoginResponse;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -26,6 +28,12 @@ import java.security.SecureRandom;
 @RequiredArgsConstructor
 @Service
 public class AuthService {
+
+    @Value("${mail.expiration}")
+    private Long mailTokenExpiration;
+
+    @Value("${jwt.expiration.refresh_token}")
+    private Long authTokenExpiration;
 
     private final MailTokenRepository mailTokenRepository;
     private final MemberRepository memberRepository;
@@ -42,6 +50,7 @@ public class AuthService {
         MailToken mailToken = MailToken.builder()
                 .id(code)
                 .memberId(memberId)
+                .timeToLive(this.mailTokenExpiration)
                 .build();
 
         this.mailTokenRepository.save(mailToken);
@@ -61,21 +70,40 @@ public class AuthService {
         return sb.toString();
     }
 
-    public Long verifyMailToken(String code) {
-        MailToken mailToken = this.mailTokenRepository.findById(code)
+    public Long verifyMailToken(AuthVerifyMailRequest request, BindingResult bindingResult) {
+
+        this.verifyMailTokenValidation(request, bindingResult);
+
+        MailToken mailToken = this.mailTokenRepository.findById(request.getCode())
                 .orElseThrow(() -> new ApiResException(
                         ResData.of(
                                 FailCode.INVALID_MAIL_TOKEN
                         )
                 ));
+
         return mailToken.getMemberId();
+    }
+
+    private void verifyMailTokenValidation(AuthVerifyMailRequest request, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+
+            log.error("binding error: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.BINDING_ERROR,
+                            bindingResult
+                    )
+            );
+        }
     }
 
     @Transactional
     public AuthLoginResponse login(AuthLoginRequest request, BindingResult bindingResult) {
-        
+
         Member member = this.loginValidate(request, bindingResult);
-        
+
         String accessToken = this.jwtUtil.genAccessToken(member);
         String refreshToken = this.jwtUtil.genRefreshToken();
         this.saveAuthToken(member, refreshToken, accessToken);
@@ -128,6 +156,17 @@ public class AuthService {
             );
         }
 
+        if (!member.isEmailVerified()) {
+
+            log.error("email not verified: {}", request.getEmail());
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.EMAIL_NOT_VERIFIED
+                    )
+            );
+        }
+
         return member;
     }
 
@@ -138,6 +177,7 @@ public class AuthService {
                 .id(member.getId())
                 .refreshToken(refreshToken)
                 .accessToken(accessToken)
+                .timeToLive(this.authTokenExpiration)
                 .build();
 
         this.authTokenRepository.save(authToken);

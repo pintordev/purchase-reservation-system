@@ -13,6 +13,8 @@ public enum FailCode {
     PASSWORD_NOT_MATCH(HttpStatus.BAD_REQUEST, "password not match", "비밀번호가 일치하지 않습니다"),
     INVALID_ADDRESS(HttpStatus.BAD_REQUEST, "invalid address", "올바르지 않은 주소입니다"),
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "member not found", "회원을 찾을 수 없습니다"),
+    INVALID_ZONECODE_AND_ADDRESS(HttpStatus.BAD_REQUEST, "invalid zoneCode and address", "zoneCode와 address는 둘 다 채워지거나 둘 다 비워져야 합니다"),
+    INVALID_SUBADDRESS(HttpStatus.BAD_REQUEST, "invalid subAddress", "subAddress는 zoneCode와 address가 채워져 있을 때만 채워질 수 있습니다"),
 
     // Auth Service Fail Code
     INVALID_MAIL_TOKEN(HttpStatus.BAD_REQUEST, "invalid mail token", "유효하지 않은 메일 토큰입니다"),
@@ -22,6 +24,7 @@ public enum FailCode {
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "invalid access token", "유효하지 않은 인증 토큰입니다"),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "unauthorized", "인증되지 않은 사용자입니다"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "forbidden", "권한이 없습니다"),
+    EMAIL_NOT_VERIFIED(HttpStatus.FORBIDDEN, "email not verified", "이메일 인증을 완료해주세요"),
 
     // Server Fail Code
     MAIL_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "mail send fail", "메일 발송 중 오류가 발생했습니다"),
