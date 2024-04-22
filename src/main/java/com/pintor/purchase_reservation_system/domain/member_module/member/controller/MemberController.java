@@ -5,6 +5,7 @@ import com.pintor.purchase_reservation_system.common.response.SuccessCode;
 import com.pintor.purchase_reservation_system.common.service.MailService;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.service.AuthService;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
+import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberPasswordUpdateRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberProfileUpdateRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberSignupRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.response.MemberSignupResponse;
@@ -57,6 +58,22 @@ public class MemberController {
 
         ResData resData = ResData.of(
                 SuccessCode.PROFILE_UPDATE
+        );
+        return ResponseEntity
+                .status(resData.getStatus())
+                .body(resData);
+    }
+
+    @PatchMapping(value = "/password")
+    public ResponseEntity passwordUpdate(@Valid @RequestBody MemberPasswordUpdateRequest request, BindingResult bindingResult,
+                                         @AuthenticationPrincipal User user) {
+
+        log.info("password update request: {}", request);
+
+        this.memberService.passwordUpdate(request, bindingResult, user);
+
+        ResData resData = ResData.of(
+                SuccessCode.PASSWORD_UPDATE
         );
         return ResponseEntity
                 .status(resData.getStatus())

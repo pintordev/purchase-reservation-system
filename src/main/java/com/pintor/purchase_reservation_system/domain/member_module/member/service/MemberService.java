@@ -8,6 +8,7 @@ import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.service.EncryptService;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.repository.MemberRepository;
+import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberPasswordUpdateRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberProfileUpdateRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberSignupRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.role.MemberRole;
@@ -252,6 +253,63 @@ public class MemberService {
             throw new ApiResException(
                     ResData.of(
                             FailCode.INVALID_ADDRESS,
+                            bindingResult
+                    )
+            );
+        }
+    }
+
+    @Transactional
+    public void passwordUpdate(MemberPasswordUpdateRequest request, BindingResult bindingResult, User user) {
+
+        Member member = this.getMemberByEmail(user.getUsername());
+
+        this.passwordUpdateValidate(request, bindingResult, member);
+
+        member = member.toBuilder()
+                .password(this.encryptService.encode(request.getNewPassword()))
+                .build();
+
+        this.memberRepository.save(member);
+    }
+
+    private void passwordUpdateValidate(MemberPasswordUpdateRequest request, BindingResult bindingResult, Member member) {
+
+        if (bindingResult.hasErrors()) {
+
+            log.error("binding error: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.BINDING_ERROR,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (!this.encryptService.passwordMatches(request.getOldPassword(), member.getPassword())) {
+
+            bindingResult.rejectValue("oldPassword", "password not match", "passwords do not match");
+
+            log.error("password not match: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.PASSWORD_NOT_MATCH,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (!request.getNewPassword().equals(request.getNewPasswordConfirm())) {
+
+            bindingResult.rejectValue("newPasswordConfirm", "password not match", "passwords do not match");
+
+            log.error("password not match: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.PASSWORD_NOT_MATCH,
                             bindingResult
                     )
             );
