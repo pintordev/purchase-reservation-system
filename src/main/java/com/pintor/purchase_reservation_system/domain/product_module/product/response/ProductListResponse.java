@@ -11,10 +11,10 @@ import lombok.Getter;
 public class ProductListResponse {
 
     @JsonUnwrapped
-    private final PagedData<Product> productList;
+    private final PagedData<ProductDetailResponse> productList;
 
     private ProductListResponse(PagedData<Product> productList) {
-        this.productList = productList;
+        this.productList = productList.map(ProductDetailResponse::of);
     }
 
     public static ProductListResponse of(PagedData<Product> productList) {

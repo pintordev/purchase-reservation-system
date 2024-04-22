@@ -15,7 +15,8 @@ public enum SuccessCode {
     PASSWORD_UPDATE(HttpStatus.OK, "password update", "비밀번호 업데이트가 완료되었습니다"),
 
     // product module
-    PRODUCT_LIST(HttpStatus.OK, "product list", "상품 목록을 반환합니다");
+    PRODUCT_LIST(HttpStatus.OK, "product list", "상품 목록을 반환합니다"),
+    PRODUCT_DETAIL(HttpStatus.OK, "product detail", "상품 상세 정보를 반환합니다"),;
 
     private HttpStatus status;
     private String code;

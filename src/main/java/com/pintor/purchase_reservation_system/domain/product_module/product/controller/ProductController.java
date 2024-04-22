@@ -3,18 +3,15 @@ package com.pintor.purchase_reservation_system.domain.product_module.product.con
 import com.pintor.purchase_reservation_system.common.response.PagedData;
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.response.SuccessCode;
-import com.pintor.purchase_reservation_system.domain.member_module.member.response.MemberSignupResponse;
 import com.pintor.purchase_reservation_system.domain.product_module.product.entity.Product;
+import com.pintor.purchase_reservation_system.domain.product_module.product.response.ProductDetailResponse;
 import com.pintor.purchase_reservation_system.domain.product_module.product.response.ProductListResponse;
 import com.pintor.purchase_reservation_system.domain.product_module.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequestMapping(value = "/api/products", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -41,5 +38,21 @@ public class ProductController {
         return ResponseEntity
                 .status(resData.getStatus())
                 .body(resData);
+    }
+
+    @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
+    public ResponseEntity productDetail(@PathVariable(value = "id") Long id) {
+
+            log.info("product detail request: id={}", id);
+
+            Product product = this.productService.getProductDetail(id);
+
+            ResData resData = ResData.of(
+                    SuccessCode.PRODUCT_DETAIL,
+                    ProductDetailResponse.of(product)
+            );
+            return ResponseEntity
+                    .status(resData.getStatus())
+                    .body(resData);
     }
 }
