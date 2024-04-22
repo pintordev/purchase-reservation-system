@@ -10,6 +10,7 @@ import com.pintor.purchase_reservation_system.domain.member_module.auth.entity.M
 import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.AuthTokenRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.MailTokenRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthLoginRequest;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthVerifyMailRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.response.AuthLoginResponse;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.repository.MemberRepository;
@@ -61,21 +62,40 @@ public class AuthService {
         return sb.toString();
     }
 
-    public Long verifyMailToken(String code) {
-        MailToken mailToken = this.mailTokenRepository.findById(code)
+    public Long verifyMailToken(AuthVerifyMailRequest request, BindingResult bindingResult) {
+
+        this.verifyMailTokenValidation(request, bindingResult);
+
+        MailToken mailToken = this.mailTokenRepository.findById(request.getCode())
                 .orElseThrow(() -> new ApiResException(
                         ResData.of(
                                 FailCode.INVALID_MAIL_TOKEN
                         )
                 ));
+
         return mailToken.getMemberId();
+    }
+
+    private void verifyMailTokenValidation(AuthVerifyMailRequest request, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+
+            log.error("binding error: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.BINDING_ERROR,
+                            bindingResult
+                    )
+            );
+        }
     }
 
     @Transactional
     public AuthLoginResponse login(AuthLoginRequest request, BindingResult bindingResult) {
-        
+
         Member member = this.loginValidate(request, bindingResult);
-        
+
         String accessToken = this.jwtUtil.genAccessToken(member);
         String refreshToken = this.jwtUtil.genRefreshToken();
         this.saveAuthToken(member, refreshToken, accessToken);

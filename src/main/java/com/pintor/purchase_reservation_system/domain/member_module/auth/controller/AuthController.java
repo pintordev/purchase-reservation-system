@@ -3,6 +3,7 @@ package com.pintor.purchase_reservation_system.domain.member_module.auth.control
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.response.SuccessCode;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthLoginRequest;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthVerifyMailRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.response.AuthLoginResponse;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.service.AuthService;
 import com.pintor.purchase_reservation_system.domain.member_module.member.service.MemberService;
@@ -25,10 +26,10 @@ public class AuthController {
     private final AuthService authService;
     private final MemberService memberService;
 
-    @GetMapping(value = "/mail", consumes = MediaType.ALL_VALUE)
-    public ResponseEntity verifyMail(@RequestParam(value = "code") String code) {
+    @PostMapping(value = "/verify/mail", consumes = MediaType.ALL_VALUE)
+    public ResponseEntity verifyMail(@Valid @RequestBody AuthVerifyMailRequest request, BindingResult bindingResult) {
 
-        Long memberId = this.authService.verifyMailToken(code);
+        Long memberId = this.authService.verifyMailToken(request, bindingResult);
         this.memberService.verifyEmail(memberId);
 
         ResData resData = ResData.of(

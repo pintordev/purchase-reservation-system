@@ -26,7 +26,7 @@ public class MailService {
 
             String title = "PRS 이메일 인증 링크 발송 메일입니다";
             String content = new StringBuilder("아래 링크로 접속하시면 이메일 인증이 완료됩니다<br>")
-                    .append("http://localhost:8082/api/auth/mail?code=")
+                    .append("http://localhost:8082/auth/mail?code=")
                     .append(code)
                     .toString();
 

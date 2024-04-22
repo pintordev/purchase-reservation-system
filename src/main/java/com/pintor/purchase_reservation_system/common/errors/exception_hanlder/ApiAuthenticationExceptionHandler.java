@@ -21,7 +21,9 @@ public class ApiAuthenticationExceptionHandler implements AuthenticationEntryPoi
 
         ResData resData;
         Long id = (Long) request.getAttribute("token_validation_level");
-        if (id == -1) {
+        if (id == null) {
+            resData= ResData.of(FailCode.UNAUTHORIZED);
+        } else if (id == -1) {
             resData = ResData.of(FailCode.EXPIRED_ACCESS_TOKEN);
         } else if (id == -2) {
             resData = ResData.of(FailCode.INVALID_ACCESS_TOKEN);
