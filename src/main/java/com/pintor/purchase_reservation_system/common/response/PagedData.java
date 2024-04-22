@@ -1,7 +1,6 @@
 package com.pintor.purchase_reservation_system.common.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.pintor.purchase_reservation_system.common.util.AppUtil;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
 
@@ -32,17 +31,17 @@ public class PagedData<T> {
         this.size = pagedList.getPageable().getPageSize();
         this.sort = pagedList.getSort().stream()
                 .map(s -> Map.of(
-                        "property", AppUtil.toCamelCase(s.getProperty()),
+                        "property", s.getProperty(),
                         "direction", s.getDirection().toString().toLowerCase()
                 ))
                 .collect(Collectors.toList());
         this.firstPage = 1;
         this.prevPage = pagedList.hasPrevious() ? pagedList.getPageable().getPageNumber() : null;
         this.nextPage = pagedList.hasNext() ? pagedList.getPageable().getPageNumber() + 2 : null;
-        this.lastPage = pagedList.getTotalPages();
+        this.lastPage = pagedList.getTotalPages() == 0 ? 1 : pagedList.getTotalPages();
         this.first = pagedList.isFirst();
         this.last = pagedList.isLast();
-        this.totalPages = pagedList.getTotalPages();
+        this.totalPages = pagedList.getTotalPages() == 0 ? 1 : pagedList.getTotalPages();
         this.totalElements = pagedList.getTotalElements();
     }
 

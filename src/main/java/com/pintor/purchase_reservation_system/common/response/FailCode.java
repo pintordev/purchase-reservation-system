@@ -26,6 +26,12 @@ public enum FailCode {
     FORBIDDEN(HttpStatus.FORBIDDEN, "forbidden", "권한이 없습니다"),
     EMAIL_NOT_VERIFIED(HttpStatus.FORBIDDEN, "email not verified", "이메일 인증을 완료해주세요"),
 
+    // List Query Fail Code
+    INVALID_SIZE(HttpStatus.BAD_REQUEST, "invalid size", "페이지 당 개수는 1 이상이어야 합니다"),
+    INVALID_PAGE(HttpStatus.BAD_REQUEST, "invalid page", "페이지가 존재하지 않습니다"),
+    INVALID_SORT(HttpStatus.BAD_REQUEST, "invalid sort", "정렬 기준이 올바르지 않습니다"),
+
+
     // Server Fail Code
     MAIL_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "mail send fail", "메일 발송 중 오류가 발생했습니다"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "internal server error", "서버 오류가 발생했습니다");
