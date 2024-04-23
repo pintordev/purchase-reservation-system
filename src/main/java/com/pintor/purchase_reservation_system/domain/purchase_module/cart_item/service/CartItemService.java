@@ -66,6 +66,8 @@ public class CartItemService {
     @Transactional
     public void update(Long id, CartItemUpdateRequest request, BindingResult bindingResult) {
 
+        this.updateValidate(bindingResult);
+
         CartItem cartItem = this.getCartItem(id);
 
         cartItem = cartItem.toBuilder()
@@ -74,6 +76,21 @@ public class CartItemService {
                 .build();
 
         this.cartItemRepository.save(cartItem);
+    }
+
+    private void updateValidate(BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+
+            log.error("cart item update request validation failed: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.BINDING_ERROR,
+                            bindingResult
+                    )
+            );
+        }
     }
 
     private CartItem getCartItem(Long id) {
