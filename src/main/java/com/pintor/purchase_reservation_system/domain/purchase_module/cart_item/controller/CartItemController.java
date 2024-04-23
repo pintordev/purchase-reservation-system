@@ -55,7 +55,7 @@ public class CartItemController {
                 .body(resData);
     }
 
-    @DeleteMapping(value = "/{id}")
+    @DeleteMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
     public ResponseEntity cartItemDelete(@PathVariable(value = "id") Long id) {
 
         log.info("cart item delete request: id={}", id);
