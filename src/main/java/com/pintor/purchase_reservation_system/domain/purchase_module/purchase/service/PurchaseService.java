@@ -5,6 +5,7 @@ import com.pintor.purchase_reservation_system.common.response.FailCode;
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart.entity.Cart;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart.service.CartService;
+import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.entity.CartItem;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.service.CartItemService;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.entity.Purchase;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.repository.PurchaseRepository;
@@ -18,6 +19,8 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
+
+import java.util.List;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -54,7 +57,8 @@ public class PurchaseService {
     public Purchase create(PurchaseCreateRequest request, BindingResult bindingResult, User user) {
 
         Cart cart = this.cartService.getCart(user);
-        int totalPrice = cart.getCartItemList().stream()
+        List<CartItem> cartItemList = this.cartItemService.getAllByCart(cart);
+        int totalPrice = cartItemList.stream()
                 .mapToInt(cartItem -> cartItem.getPrice() * cartItem.getQuantity())
                 .sum();
 
@@ -70,9 +74,9 @@ public class PurchaseService {
 
         this.purchaseRepository.save(purchase);
 
-        this.purchaseItemService.createAll(cart.getCartItemList(), purchase, request.getType());
-        this.cartItemService.deleteAll(cart.getCartItemList(), request.getType());
+        this.purchaseItemService.createAll(cartItemList, purchase, request.getType());
         this.purchaseLogService.log(purchase);
+        this.cartItemService.deleteAll(cartItemList, request.getType());
 
         return this.refresh(purchase);
     }
