@@ -54,4 +54,19 @@ public class CartItemController {
                 .status(resData.getStatus())
                 .body(resData);
     }
+
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity cartItemDelete(@PathVariable(value = "id") Long id) {
+
+        log.info("cart item delete request: id={}", id);
+
+        this.cartItemService.delete(id);
+
+        ResData resData = ResData.of(
+                SuccessCode.DELETE_CART_ITEM
+        );
+        return ResponseEntity
+                .status(resData.getStatus())
+                .body(resData);
+    }
 }
