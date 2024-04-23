@@ -17,6 +17,9 @@ import java.util.List;
 @AllArgsConstructor
 @ToString(callSuper = true)
 @Entity
+@Table(name = "purchase", indexes = {
+        @Index(name = "status", columnList = "status")
+})
 public class Purchase extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class PurchaseCreateRequest {
 
-    @NotBlank(message = "type is required")
+    @NotBlank(message = "Type is required")
     private String type;
 
     @NotBlank(message = "Phone number is required")
