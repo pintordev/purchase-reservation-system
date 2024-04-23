@@ -14,7 +14,7 @@ public class ListedData<R> {
 
     private final List<R> list;
 
-    public <T> ListedData(List<T> data, Function<T,R> converter) {
+    public <T> ListedData(List<T> data, Function<T, R> converter) {
         if (data.isEmpty()) {
             this.list = new ArrayList<>();
             return;
