@@ -1,6 +1,8 @@
 package com.pintor.purchase_reservation_system.domain.purchase_module.purchase_item.entity;
 
-import jakarta.persistence.Entity;
+import com.pintor.purchase_reservation_system.domain.product_module.product.entity.Product;
+import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.entity.Purchase;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -12,4 +14,20 @@ import lombok.experimental.SuperBuilder;
 @Entity
 @EqualsAndHashCode(of = "id")
 public class PurchaseItem {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Purchase purchase;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Product product;
+
+    private String name;
+
+    private Integer price;
+
+    private Integer quantity;
 }

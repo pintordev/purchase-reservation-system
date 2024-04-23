@@ -1,4 +1,4 @@
-package com.pintor.purchase_reservation_system.domain.member_module.member.converter;
+package com.pintor.purchase_reservation_system.common.converter;
 
 import com.pintor.purchase_reservation_system.common.service.EncryptService;
 import jakarta.persistence.AttributeConverter;
@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Converter
-public class MemberConverter implements AttributeConverter<String, String> {
+public class AesConverter implements AttributeConverter<String, String> {
 
     private final EncryptService encryptService;
 

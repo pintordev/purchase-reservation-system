@@ -1,9 +1,15 @@
 package com.pintor.purchase_reservation_system.domain.purchase_module.purchase.entity;
 
+import com.pintor.purchase_reservation_system.common.converter.AesConverter;
 import com.pintor.purchase_reservation_system.common.entity.BaseEntity;
-import jakarta.persistence.Entity;
+import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
+import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.status.PurchaseStatus;
+import com.pintor.purchase_reservation_system.domain.purchase_module.purchase_item.entity.PurchaseItem;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+
+import java.util.List;
 
 @Getter
 @SuperBuilder(toBuilder = true)
@@ -12,4 +18,28 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 @Entity
 public class Purchase extends BaseEntity {
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Member member;
+
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "varchar(255)")
+    private PurchaseStatus status;
+
+    private Integer totalPrice;
+
+    @Convert(converter = AesConverter.class)
+    private String phoneNumber;
+
+    @Convert(converter = AesConverter.class)
+    private String zoneCode;
+
+    @Convert(converter = AesConverter.class)
+    private String address;
+
+    @Convert(converter = AesConverter.class)
+    private String subAddress;
+
+    @OneToMany(mappedBy = "purchase", fetch = FetchType.LAZY)
+    private List<PurchaseItem> purchaseItemList;
 }

@@ -27,9 +27,9 @@ public class CartItem {
 
     private String name;
 
-    private int price;
+    private Integer price;
 
-    private int quantity;
+    private Integer quantity;
 
     private boolean selected;
 }
