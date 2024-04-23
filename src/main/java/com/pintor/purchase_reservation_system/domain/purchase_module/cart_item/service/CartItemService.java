@@ -61,4 +61,7 @@ public class CartItemService {
             );
         }
     }
+
+    public void update(Long id, CartItemCreateRequest request, BindingResult bindingResult) {
+    }
 }

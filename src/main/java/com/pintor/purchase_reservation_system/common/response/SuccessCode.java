@@ -20,7 +20,8 @@ public enum SuccessCode {
 
     // purchase module
     CART_LIST(HttpStatus.OK, "cart list", "장바구니 목록을 반환합니다"),
-    CREATE_CART_ITEM(HttpStatus.CREATED, "create cart item", "장바구니에 상품을 추가하였습니다"),;
+    CREATE_CART_ITEM(HttpStatus.CREATED, "create cart item", "장바구니에 상품을 추가하였습니다"),
+    UPDATE_CART_ITEM(HttpStatus.OK, "update cart item", "장바구니 상품을 업데이트하였습니다"),;
 
     private HttpStatus status;
     private String code;
