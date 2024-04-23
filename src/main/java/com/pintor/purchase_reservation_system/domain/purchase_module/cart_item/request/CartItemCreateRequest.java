@@ -1,7 +1,7 @@
 package com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.request;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,6 +17,6 @@ public class CartItemCreateRequest {
     private Long productId;
 
     @NotNull(message = "Quantity is required")
-    @Size(min = 1, message = "Quantity must be greater than 0")
+    @Min(value = 1, message = "Quantity must be at least 1")
     private Integer quantity;
 }
