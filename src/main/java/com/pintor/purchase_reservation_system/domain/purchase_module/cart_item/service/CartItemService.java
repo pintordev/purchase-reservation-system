@@ -101,4 +101,12 @@ public class CartItemService {
                         )
                 ));
     }
+
+    @Transactional
+    public void delete(Long id) {
+
+        CartItem cartItem = this.getCartItem(id);
+
+        this.cartItemRepository.delete(cartItem);
+    }
 }
