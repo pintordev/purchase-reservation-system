@@ -10,6 +10,7 @@ import com.pintor.purchase_reservation_system.domain.purchase_module.cart.servic
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.entity.CartItem;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.repository.CartItemRepository;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.request.CartItemCreateRequest;
+import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.request.CartItemUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.User;
@@ -62,6 +63,25 @@ public class CartItemService {
         }
     }
 
-    public void update(Long id, CartItemCreateRequest request, BindingResult bindingResult) {
+    @Transactional
+    public void update(Long id, CartItemUpdateRequest request, BindingResult bindingResult) {
+
+        CartItem cartItem = this.getCartItem(id);
+
+        cartItem = cartItem.toBuilder()
+                .quantity(request.getQuantity() != null ? request.getQuantity() : cartItem.getQuantity())
+                .selected(request.getSelected() != null ? request.getSelected() : cartItem.isSelected())
+                .build();
+
+        this.cartItemRepository.save(cartItem);
+    }
+
+    private CartItem getCartItem(Long id) {
+        return this.cartItemRepository.findById(id)
+                .orElseThrow(() -> new ApiResException(
+                        ResData.of(
+                                FailCode.CART_ITEM_NOT_FOUND
+                        )
+                ));
     }
 }

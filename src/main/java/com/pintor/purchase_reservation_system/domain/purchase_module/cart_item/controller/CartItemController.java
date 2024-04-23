@@ -3,6 +3,7 @@ package com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.response.SuccessCode;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.request.CartItemCreateRequest;
+import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.request.CartItemUpdateRequest;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.service.CartItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,7 @@ public class CartItemController {
 
     @PatchMapping("/{id}")
     public ResponseEntity cartItemUpdate(@PathVariable Long id,
-                                         @Valid @RequestBody CartItemCreateRequest request, BindingResult bindingResult) {
+                                         @Valid @RequestBody CartItemUpdateRequest request, BindingResult bindingResult) {
 
         log.info("cart item update request: {}", request);
 
