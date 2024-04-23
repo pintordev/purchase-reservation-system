@@ -49,7 +49,7 @@ public class MemberController {
     }
 
     @PatchMapping
-    public ResponseEntity profileUpdate(@Valid @RequestBody MemberProfileUpdateRequest request, BindingResult bindingResult,
+    public ResponseEntity updateProfile(@Valid @RequestBody MemberProfileUpdateRequest request, BindingResult bindingResult,
                                         @AuthenticationPrincipal User user) {
 
         log.info("profile update request: {}", request);
@@ -57,7 +57,7 @@ public class MemberController {
         this.memberService.profileUpdate(request, bindingResult, user);
 
         ResData resData = ResData.of(
-                SuccessCode.PROFILE_UPDATE
+                SuccessCode.UPDATE_PROFILE
         );
         return ResponseEntity
                 .status(resData.getStatus())
@@ -65,7 +65,7 @@ public class MemberController {
     }
 
     @PatchMapping(value = "/password")
-    public ResponseEntity passwordUpdate(@Valid @RequestBody MemberPasswordUpdateRequest request, BindingResult bindingResult,
+    public ResponseEntity updatePassword(@Valid @RequestBody MemberPasswordUpdateRequest request, BindingResult bindingResult,
                                          @AuthenticationPrincipal User user) {
 
         log.info("password update request: {}", request);
@@ -73,7 +73,7 @@ public class MemberController {
         this.memberService.passwordUpdate(request, bindingResult, user);
 
         ResData resData = ResData.of(
-                SuccessCode.PASSWORD_UPDATE
+                SuccessCode.UPDATE_PASSWORD
         );
         return ResponseEntity
                 .status(resData.getStatus())
