@@ -34,6 +34,9 @@ public enum FailCode {
     // Product Fail Code
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "product not found", "상품을 찾을 수 없습니다"),
 
+    // CartItem Fail Code
+    CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "cart item not found", "장바구니 상품을 찾을 수 없습니다"),
+
     // Server Fail Code
     MAIL_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "mail send fail", "메일 발송 중 오류가 발생했습니다"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "internal server error", "서버 오류가 발생했습니다"),;

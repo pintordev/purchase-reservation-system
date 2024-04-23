@@ -3,6 +3,7 @@ package com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.response.SuccessCode;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.request.CartItemCreateRequest;
+import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.request.CartItemUpdateRequest;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.service.CartItemService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -12,10 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequestMapping(value = "/api/cartItems", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -35,6 +33,22 @@ public class CartItemController {
 
         ResData resData = ResData.of(
                 SuccessCode.CREATE_CART_ITEM
+        );
+        return ResponseEntity
+                .status(resData.getStatus())
+                .body(resData);
+    }
+
+    @PatchMapping(value = "/{id}")
+    public ResponseEntity cartItemUpdate(@PathVariable(value = "id") Long id,
+                                         @Valid @RequestBody CartItemUpdateRequest request, BindingResult bindingResult) {
+
+        log.info("cart item update request: {}", request);
+
+        this.cartItemService.update(id, request, bindingResult);
+
+        ResData resData = ResData.of(
+                SuccessCode.UPDATE_CART_ITEM
         );
         return ResponseEntity
                 .status(resData.getStatus())
