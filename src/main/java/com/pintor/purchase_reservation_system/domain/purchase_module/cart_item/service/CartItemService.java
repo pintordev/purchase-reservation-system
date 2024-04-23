@@ -1,5 +1,8 @@
 package com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.service;
 
+import com.pintor.purchase_reservation_system.common.errors.exception.ApiResException;
+import com.pintor.purchase_reservation_system.common.response.FailCode;
+import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.domain.product_module.product.entity.Product;
 import com.pintor.purchase_reservation_system.domain.product_module.product.service.ProductService;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart.entity.Cart;
@@ -28,6 +31,7 @@ public class CartItemService {
     @Transactional
     public void create(CartItemCreateRequest request, BindingResult bindingResult, User user) {
 
+        this.createValidate(bindingResult);
         Product product = this.productService.getProductDetail(request.getProductId());
 
         Cart cart = this.cartService.getCart(user);
@@ -41,5 +45,20 @@ public class CartItemService {
                 .build();
 
         this.cartItemRepository.save(cartItem);
+    }
+
+    private void createValidate(BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+
+            log.error("cart item create request validation failed: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.BINDING_ERROR,
+                            bindingResult
+                    )
+            );
+        }
     }
 }
