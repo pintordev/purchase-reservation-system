@@ -6,7 +6,7 @@ import jakarta.persistence.Converter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@Converter(autoApply = true)
+@Converter
 public class MemberConverter implements AttributeConverter<String, String> {
 
     private final EncryptService encryptService;
