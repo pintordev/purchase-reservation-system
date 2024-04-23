@@ -173,7 +173,7 @@ public class MemberService {
                 ));
     }
 
-    private Member getMemberByEmail(String username) {
+    public Member getMemberByEmail(String username) {
         return this.memberRepository.findByEmail(username)
                 .orElseThrow(() -> new ApiResException(
                         ResData.of(

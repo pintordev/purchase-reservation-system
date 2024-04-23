@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Getter
-public class PagedData<T> {
+public class PagedData<R> {
 
-    private final List<T> list;
+    private final List<R> list;
     private final Integer page;
     private final Integer size;
     private final List<Map<String, String>> sort;
@@ -26,49 +26,29 @@ public class PagedData<T> {
     private final Integer totalPages;
     private final Long totalElements;
 
-    private PagedData(Page<T> pagedList) {
-        this.list = pagedList.getContent();
-        this.page = pagedList.getPageable().getPageNumber() + 1;
-        this.size = pagedList.getPageable().getPageSize();
-        this.sort = pagedList.getSort().stream()
+    public <T> PagedData(Page<T> data, Function<T, R> converter) {
+        this.list = data.getContent().stream()
+                .map(converter)
+                .collect(Collectors.toList());
+        this.page = data.getPageable().getPageNumber() + 1;
+        this.size = data.getPageable().getPageSize();
+        this.sort = data.getSort().stream()
                 .map(s -> Map.of(
                         "property", s.getProperty(),
                         "direction", s.getDirection().toString().toLowerCase()
                 ))
                 .collect(Collectors.toList());
         this.firstPage = 1;
-        this.prevPage = pagedList.hasPrevious() ? pagedList.getPageable().getPageNumber() : null;
-        this.nextPage = pagedList.hasNext() ? pagedList.getPageable().getPageNumber() + 2 : null;
-        this.lastPage = pagedList.getTotalPages() == 0 ? 1 : pagedList.getTotalPages();
-        this.first = pagedList.isFirst();
-        this.last = pagedList.isLast();
-        this.totalPages = pagedList.getTotalPages() == 0 ? 1 : pagedList.getTotalPages();
-        this.totalElements = pagedList.getTotalElements();
+        this.prevPage = data.hasPrevious() ? data.getPageable().getPageNumber() : null;
+        this.nextPage = data.hasNext() ? data.getPageable().getPageNumber() + 2 : null;
+        this.lastPage = data.getTotalPages() == 0 ? 1 : data.getTotalPages();
+        this.first = data.isFirst();
+        this.last = data.isLast();
+        this.totalPages = data.getTotalPages() == 0 ? 1 : data.getTotalPages();
+        this.totalElements = data.getTotalElements();
     }
 
-    public static <T> PagedData<T> of(Page<T> pagedList) {
-        return new PagedData<>(pagedList);
-    }
-
-    public PagedData(PagedData<T> pagedData, List<T> mappedData) {
-        this.list = mappedData;
-        this.page = pagedData.page;
-        this.size = pagedData.size;
-        this.sort = pagedData.sort;
-        this.firstPage = pagedData.firstPage;
-        this.prevPage = pagedData.prevPage;
-        this.nextPage = pagedData.nextPage;
-        this.lastPage = pagedData.lastPage;
-        this.first = pagedData.first;
-        this.last = pagedData.last;
-        this.totalPages = pagedData.totalPages;
-        this.totalElements = pagedData.totalElements;
-    }
-
-    public <R> PagedData<R> map(Function<? super T, ? extends R> converter) {
-        List<R> mappedData = list.stream()
-                .map(converter)
-                .collect(Collectors.toList());
-        return new PagedData<R>((PagedData<R>) this, mappedData);
+    public static <T, R> PagedData<R> of(Page<T> data, Function<T, R> converter) {
+        return new PagedData(data, converter);
     }
 }
