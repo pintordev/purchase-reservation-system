@@ -39,8 +39,8 @@ public class CartItemController {
                 .body(resData);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity cartItemUpdate(@PathVariable Long id,
+    @PatchMapping(value = "/{id}")
+    public ResponseEntity cartItemUpdate(@PathVariable(value = "id") Long id,
                                          @Valid @RequestBody CartItemUpdateRequest request, BindingResult bindingResult) {
 
         log.info("cart item update request: {}", request);
