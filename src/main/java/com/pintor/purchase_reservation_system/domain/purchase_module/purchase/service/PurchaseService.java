@@ -3,6 +3,7 @@ package com.pintor.purchase_reservation_system.domain.purchase_module.purchase.s
 import com.pintor.purchase_reservation_system.common.errors.exception.ApiResException;
 import com.pintor.purchase_reservation_system.common.response.FailCode;
 import com.pintor.purchase_reservation_system.common.response.ResData;
+import com.pintor.purchase_reservation_system.common.service.AddressService;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart.entity.Cart;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart.service.CartService;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.entity.CartItem;
@@ -34,6 +35,7 @@ public class PurchaseService {
     private final CartItemService cartItemService;
     private final PurchaseItemService purchaseItemService;
     private final PurchaseLogService purchaseLogService;
+    private final AddressService addressService;
 
     private final EntityManager entityManager;
 
@@ -55,6 +57,8 @@ public class PurchaseService {
 
     @Transactional
     public Purchase create(PurchaseCreateRequest request, BindingResult bindingResult, User user) {
+
+        this.createValidate(request, bindingResult);
 
         Cart cart = this.cartService.getCart(user);
         List<CartItem> cartItemList = this.cartItemService.getAllByCart(cart);
@@ -79,5 +83,44 @@ public class PurchaseService {
         this.cartItemService.deleteAll(cartItemList, request.getType());
 
         return this.refresh(purchase);
+    }
+
+    private void createValidate(PurchaseCreateRequest request, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.BINDING_ERROR,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (!request.getType().equals("all") && !request.getType().equals("selected")) {
+
+            bindingResult.rejectValue("type", "invalid purchase type", "purchase type must be all or selected");
+
+            throw new ApiResException(
+                    ResData.of(
+                        FailCode.INVALID_PURCHASE_TYPE,
+                        bindingResult
+                    )
+            );
+        }
+
+        if (!this.addressService.isValidAddress(request.getZoneCode(), request.getAddress())) {
+
+            bindingResult.rejectValue("address", "invalid address", "invalid address");
+
+            log.error("invalid address: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INVALID_ADDRESS,
+                            bindingResult
+                    )
+            );
+        }
     }
 }

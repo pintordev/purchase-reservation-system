@@ -39,6 +39,7 @@ public enum FailCode {
 
     // Purchase Fail Code
     PURCHASE_NOT_FOUND(HttpStatus.NOT_FOUND, "purchase not found", "주문을 찾을 수 없습니다"),
+    INVALID_PURCHASE_TYPE(HttpStatus.BAD_REQUEST, "invalid purchase type", "주문 타입이 올바르지 않습니다"),
 
     // Server Fail Code
     MAIL_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "mail send fail", "메일 발송 중 오류가 발생했습니다"),
