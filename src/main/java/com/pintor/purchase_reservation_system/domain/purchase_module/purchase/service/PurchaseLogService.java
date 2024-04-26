@@ -2,11 +2,16 @@ package com.pintor.purchase_reservation_system.domain.purchase_module.purchase.s
 
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.entity.Purchase;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.entity.PurchaseLog;
+import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.repository.PurchaseLogBulkRepository;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.repository.PurchaseLogRepository;
+import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.status.PurchaseStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -15,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PurchaseLogService {
 
     private final PurchaseLogRepository purchaseLogRepository;
+    private final PurchaseLogBulkRepository purchaseLogBulkRepository;
 
     @Transactional
     public void log(Purchase purchase) {
@@ -32,5 +38,10 @@ public class PurchaseLogService {
                 .build();
 
         this.purchaseLogRepository.save(purchaseLog);
+    }
+
+    @Transactional
+    public void log(List<Purchase> purchaseList, PurchaseStatus after, LocalDateTime now) {
+        this.purchaseLogBulkRepository.saveAll(purchaseList, after, now);
     }
 }

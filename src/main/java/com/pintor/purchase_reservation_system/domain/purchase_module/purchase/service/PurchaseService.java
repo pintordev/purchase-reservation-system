@@ -9,6 +9,7 @@ import com.pintor.purchase_reservation_system.domain.purchase_module.cart.servic
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.entity.CartItem;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.service.CartItemService;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.entity.Purchase;
+import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.repository.PurchaseBulkRepository;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.repository.PurchaseRepository;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.request.PurchaseCreateRequest;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.status.PurchaseStatus;
@@ -21,6 +22,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Slf4j
@@ -30,6 +34,7 @@ import java.util.List;
 public class PurchaseService {
 
     private final PurchaseRepository purchaseRepository;
+    private final PurchaseBulkRepository purchaseBulkRepository;
 
     private final CartService cartService;
     private final CartItemService cartItemService;
@@ -122,5 +127,28 @@ public class PurchaseService {
                     )
             );
         }
+    }
+
+    @Transactional
+    public void changeStatus() {
+        LocalDateTime now = LocalDateTime.of(LocalDate.now(), LocalTime.of(16, 0));
+        LocalDateTime start = now.minusDays(2);
+        LocalDateTime end = now.minusDays(1);
+
+        // 주문 후 D+1에 배송중
+        List<Purchase> purchaseList = this.purchaseRepository.findByStatusAndUpdatedAtBetween(PurchaseStatus.PURCHASED, start, end);
+        this.purchaseBulkRepository.saveAllWithStatus(purchaseList, PurchaseStatus.ON_DELIVERY, now);
+        this.purchaseLogService.log(purchaseList, PurchaseStatus.ON_DELIVERY, now);
+
+        log.info("updated {} purchases to ON_DELIVERY", purchaseList.size());
+
+        // 배송중 후 D+2일에 배송완료
+        purchaseList = this.purchaseRepository.findByStatusAndUpdatedAtBetween(PurchaseStatus.ON_DELIVERY, start, end);
+        this.purchaseBulkRepository.saveAllWithStatus(purchaseList, PurchaseStatus.DELIVERED, now);
+        this.purchaseLogService.log(purchaseList, PurchaseStatus.DELIVERED, now);
+
+        log.info("updated {} purchases to DELIVERED", purchaseList.size());
+
+        // TODO: 반품 신청 후 D+1에 반품완료
     }
 }

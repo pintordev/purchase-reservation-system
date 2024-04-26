@@ -6,7 +6,8 @@ public enum PurchaseStatus {
     CANCELLED("cancelled"),
     ON_DELIVERY("on_delivery"),
     DELIVERED("delivered"),
-    RETURN("return");
+    ON_RETURN("on_return"),
+    RETURNED("returned");
 
     private String status;
 

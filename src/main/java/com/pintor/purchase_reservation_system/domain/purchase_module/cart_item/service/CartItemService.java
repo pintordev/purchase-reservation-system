@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -112,9 +113,11 @@ public class CartItemService {
 
     @Transactional
     public void deleteAll(List<CartItem> cartItemList, String type) {
-        cartItemList.stream()
+        cartItemList = cartItemList.stream()
                 .filter(cartItem -> type.equals("all") || cartItem.isSelected())
-                .forEach(cartItem -> this.delete(cartItem.getId()));
+                .collect(Collectors.toList());
+
+        this.cartItemRepository.deleteAllInBatch(cartItemList);
     }
 
     public List<CartItem> getAllByCart(Cart cart) {

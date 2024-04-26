@@ -4,8 +4,10 @@ import com.pintor.purchase_reservation_system.common.service.EncryptService;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
+@Component
 @Converter
 public class AesConverter implements AttributeConverter<String, String> {
 
