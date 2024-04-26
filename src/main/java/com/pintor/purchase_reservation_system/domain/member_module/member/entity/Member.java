@@ -1,7 +1,7 @@
 package com.pintor.purchase_reservation_system.domain.member_module.member.entity;
 
 import com.pintor.purchase_reservation_system.common.entity.BaseEntity;
-import com.pintor.purchase_reservation_system.domain.member_module.member.converter.MemberConverter;
+import com.pintor.purchase_reservation_system.common.converter.AesConverter;
 import com.pintor.purchase_reservation_system.domain.member_module.member.role.MemberRole;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,25 +25,25 @@ public class Member extends BaseEntity {
     @Column(columnDefinition = "varchar(255)")
     private MemberRole role;
 
-    @Convert(converter = MemberConverter.class)
+    @Convert(converter = AesConverter.class)
     @Column(unique = true)
     private String email;
 
-    @Convert(converter = MemberConverter.class)
+    @Convert(converter = AesConverter.class)
     private String name;
 
     private String password;
 
-    @Convert(converter = MemberConverter.class)
+    @Convert(converter = AesConverter.class)
     private String phoneNumber;
 
-    @Convert(converter = MemberConverter.class)
+    @Convert(converter = AesConverter.class)
     private String zoneCode;
 
-    @Convert(converter = MemberConverter.class)
+    @Convert(converter = AesConverter.class)
     private String address;
 
-    @Convert(converter = MemberConverter.class)
+    @Convert(converter = AesConverter.class)
     private String subAddress;
 
     private boolean emailVerified;

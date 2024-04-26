@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -104,9 +107,20 @@ public class CartItemService {
 
     @Transactional
     public void delete(Long id) {
-
         CartItem cartItem = this.getCartItem(id);
-
         this.cartItemRepository.delete(cartItem);
+    }
+
+    @Transactional
+    public void deleteAll(List<CartItem> cartItemList, String type) {
+        cartItemList = cartItemList.stream()
+                .filter(cartItem -> type.equals("all") || cartItem.isSelected())
+                .collect(Collectors.toList());
+
+        this.cartItemRepository.deleteAllInBatch(cartItemList);
+    }
+
+    public List<CartItem> getAllByCart(Cart cart) {
+        return this.cartItemRepository.findAllByCart(cart);
     }
 }
