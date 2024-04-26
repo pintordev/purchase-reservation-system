@@ -4,6 +4,10 @@ import com.pintor.purchase_reservation_system.common.errors.exception.ApiResExce
 import com.pintor.purchase_reservation_system.common.response.FailCode;
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.service.AddressService;
+import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
+import com.pintor.purchase_reservation_system.domain.member_module.member.service.MemberService;
+import com.pintor.purchase_reservation_system.domain.product_module.product.entity.Product;
+import com.pintor.purchase_reservation_system.domain.product_module.product.service.ProductService;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart.entity.Cart;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart.service.CartService;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.entity.CartItem;
@@ -12,6 +16,7 @@ import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.en
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.repository.PurchaseBulkRepository;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.repository.PurchaseRepository;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.request.PurchaseCreateRequest;
+import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.request.PurchaseCreateUnitRequest;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.status.PurchaseStatus;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase_item.service.PurchaseItemService;
 import jakarta.persistence.EntityManager;
@@ -41,6 +46,8 @@ public class PurchaseService {
     private final PurchaseItemService purchaseItemService;
     private final PurchaseLogService purchaseLogService;
     private final AddressService addressService;
+    private final MemberService memberService;
+    private final ProductService productService;
 
     private final EntityManager entityManager;
 
@@ -108,8 +115,113 @@ public class PurchaseService {
 
             throw new ApiResException(
                     ResData.of(
-                        FailCode.INVALID_PURCHASE_TYPE,
-                        bindingResult
+                            FailCode.INVALID_PURCHASE_TYPE,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (!this.addressService.isValidAddress(request.getZoneCode(), request.getAddress())) {
+
+            bindingResult.rejectValue("address", "invalid address", "invalid address");
+
+            log.error("invalid address: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INVALID_ADDRESS,
+                            bindingResult
+                    )
+            );
+        }
+    }
+
+    @Transactional
+    public Purchase createUnit(PurchaseCreateUnitRequest request, BindingResult bindingResult, User user) {
+
+        this.createUnitValidate(request, bindingResult);
+
+        Member member = this.memberService.getMemberByEmail(user.getUsername());
+
+        Integer totalPrice;
+        Product product = null;
+        CartItem cartItem = null;
+        if (request.getType().equals("product")) {
+            product = this.productService.getProductDetail(request.getProductId());
+            totalPrice = product.getPrice() * request.getQuantity();
+        } else {
+            cartItem = this.cartItemService.getCartItemById(request.getCartItemId());
+            totalPrice = cartItem.getPrice() * cartItem.getQuantity();
+        }
+
+        Purchase purchase = Purchase.builder()
+                .member(member)
+                .status(PurchaseStatus.PURCHASED)
+                .totalPrice(totalPrice)
+                .phoneNumber(request.getPhoneNumber())
+                .zoneCode(request.getZoneCode())
+                .address(request.getAddress())
+                .subAddress(request.getSubAddress() == null ? "" : request.getSubAddress())
+                .build();
+
+        this.purchaseRepository.save(purchase);
+
+        if (cartItem != null) {
+            this.purchaseItemService.create(request, purchase, cartItem);
+            this.cartItemService.delete(request.getCartItemId());
+        } else {
+            this.purchaseItemService.create(request, purchase, product);
+        }
+        this.purchaseLogService.log(purchase);
+
+        return this.refresh(purchase);
+    }
+
+    private void createUnitValidate(PurchaseCreateUnitRequest request, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.BINDING_ERROR,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (!request.getType().equals("product") && !request.getType().equals("cartItem")) {
+
+            bindingResult.rejectValue("type", "invalid purchase type", "purchase type must be product or cartItem");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INVALID_PURCHASE_TYPE,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (request.getType() == "product" && (request.getProductId() == null || request.getQuantity() == null)) {
+
+            bindingResult.rejectValue("productId", "product id is required", "product id is required");
+            bindingResult.rejectValue("quantity", "quantity is required", "quantity is required");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.PRODUCT_ID_AND_QUANTITY_REQUIRED,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (request.getType() == "cartItem" && request.getCartItemId() == null) {
+
+            bindingResult.rejectValue("cartItemId", "cart item id is required", "cart item id is required");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.CART_ITEM_ID_REQUIRED,
+                            bindingResult
                     )
             );
         }

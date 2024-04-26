@@ -1,7 +1,9 @@
 package com.pintor.purchase_reservation_system.domain.purchase_module.purchase_item.service;
 
+import com.pintor.purchase_reservation_system.domain.product_module.product.entity.Product;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.entity.CartItem;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.entity.Purchase;
+import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.request.PurchaseCreateUnitRequest;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase_item.entity.PurchaseItem;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase_item.repository.PurchaseItemRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,5 +41,29 @@ public class PurchaseItemService {
                 .price(cartItem.getPrice())
                 .quantity(cartItem.getQuantity())
                 .build();
+    }
+
+    @Transactional
+    public void create(PurchaseCreateUnitRequest request, Purchase purchase, CartItem cartItem) {
+        PurchaseItem purchaseItem = PurchaseItem.builder()
+                .purchase(purchase)
+                .product(cartItem.getProduct())
+                .name(cartItem.getName())
+                .price(cartItem.getPrice())
+                .quantity(cartItem.getQuantity())
+                .build();
+        this.purchaseItemRepository.save(purchaseItem);
+    }
+
+    @Transactional
+    public void create(PurchaseCreateUnitRequest request, Purchase purchase, Product product) {
+        PurchaseItem purchaseItem = PurchaseItem.builder()
+                .purchase(purchase)
+                .product(product)
+                .name(product.getName())
+                .price(product.getPrice())
+                .quantity(request.getQuantity())
+                .build();
+        this.purchaseItemRepository.save(purchaseItem);
     }
 }

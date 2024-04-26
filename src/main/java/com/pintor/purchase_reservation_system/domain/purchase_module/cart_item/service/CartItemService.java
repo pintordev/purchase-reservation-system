@@ -123,4 +123,13 @@ public class CartItemService {
     public List<CartItem> getAllByCart(Cart cart) {
         return this.cartItemRepository.findAllByCart(cart);
     }
+
+    public CartItem getCartItemById(Long cartItemId) {
+        return this.cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new ApiResException(
+                        ResData.of(
+                                FailCode.CART_ITEM_NOT_FOUND
+                        )
+                ));
+    }
 }

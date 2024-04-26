@@ -40,6 +40,8 @@ public enum FailCode {
     // Purchase Fail Code
     PURCHASE_NOT_FOUND(HttpStatus.NOT_FOUND, "purchase not found", "주문을 찾을 수 없습니다"),
     INVALID_PURCHASE_TYPE(HttpStatus.BAD_REQUEST, "invalid purchase type", "주문 타입이 올바르지 않습니다"),
+    PRODUCT_ID_AND_QUANTITY_REQUIRED(HttpStatus.BAD_REQUEST, "product id and quantity required", "상품 id와 수량은 필수입니다"),
+    CART_ITEM_ID_REQUIRED(HttpStatus.BAD_REQUEST, "cart item id required", "장바구니 상품 id는 필수입니다"),
 
     // Server Fail Code
     MAIL_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "mail send fail", "메일 발송 중 오류가 발생했습니다"),
