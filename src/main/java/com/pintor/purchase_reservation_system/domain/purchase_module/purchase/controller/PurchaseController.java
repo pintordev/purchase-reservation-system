@@ -4,6 +4,7 @@ import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.response.SuccessCode;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.entity.Purchase;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.request.PurchaseCreateRequest;
+import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.request.PurchaseCreateUnitRequest;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.response.PurchaseCreateResponse;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.service.PurchaseService;
 import jakarta.validation.Valid;
@@ -37,6 +38,23 @@ public class PurchaseController {
 
         ResData resData = ResData.of(
                 SuccessCode.CREATE_PURCHASE,
+                PurchaseCreateResponse.of(purchase)
+        );
+        return ResponseEntity
+                .status(resData.getStatus())
+                .body(resData);
+    }
+
+    @PostMapping(value = "/unit")
+    public ResponseEntity createPurchaseUnit(@Valid @RequestBody PurchaseCreateUnitRequest request, BindingResult bindingResult,
+                                             @AuthenticationPrincipal User user) {
+
+        log.info("purchase create request: {}", request);
+
+        Purchase purchase = this.purchaseService.createUnit(request, bindingResult, user);
+
+        ResData resData = ResData.of(
+                SuccessCode.CREATE_PURCHASE_UNIT,
                 PurchaseCreateResponse.of(purchase)
         );
         return ResponseEntity
