@@ -98,4 +98,20 @@ public class PurchaseController {
                 .status(resData.getStatus())
                 .body(resData);
     }
+
+    @PatchMapping(value = "/{id}/cancel")
+    public ResponseEntity cancelPurchase(@PathVariable(value = "id") Long id,
+                                         @AuthenticationPrincipal User user) {
+
+        log.info("purchase cancel request: id={}", id);
+
+        Purchase purchase = this.purchaseService.cancelPurchase(id, user);
+
+        ResData resData = ResData.of(
+                SuccessCode.CANCEL_PURCHASE
+        );
+        return ResponseEntity
+                .status(resData.getStatus())
+                .body(resData);
+    }
 }
