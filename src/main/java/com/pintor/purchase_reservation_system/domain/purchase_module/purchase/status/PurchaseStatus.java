@@ -14,5 +14,4 @@ public enum PurchaseStatus {
     PurchaseStatus(String status) {
         this.status = status;
     }
-
 }

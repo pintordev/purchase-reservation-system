@@ -201,7 +201,7 @@ public class PurchaseService {
             );
         }
 
-        if (request.getType() == "product" && (request.getProductId() == null || request.getQuantity() == null)) {
+        if (request.getType().equals("product") && (request.getProductId() == null || request.getQuantity() == null)) {
 
             bindingResult.rejectValue("productId", "product id is required", "product id is required");
             bindingResult.rejectValue("quantity", "quantity is required", "quantity is required");
@@ -214,7 +214,7 @@ public class PurchaseService {
             );
         }
 
-        if (request.getType() == "cartItem" && request.getCartItemId() == null) {
+        if (request.getType().equals("cartItem") && request.getCartItemId() == null) {
 
             bindingResult.rejectValue("cartItemId", "cart item id is required", "cart item id is required");
 
@@ -254,7 +254,7 @@ public class PurchaseService {
 
         log.info("updated {} purchases to ON_DELIVERY", purchaseList.size());
 
-        // 배송중 후 D+2일에 배송완료
+        // 배송중 후 D+1일에 배송완료
         purchaseList = this.purchaseRepository.findByStatusAndUpdatedAtBetween(PurchaseStatus.ON_DELIVERY, start, end);
         this.purchaseBulkRepository.saveAllWithStatus(purchaseList, PurchaseStatus.DELIVERED, now);
         this.purchaseLogService.log(purchaseList, PurchaseStatus.DELIVERED, now);
