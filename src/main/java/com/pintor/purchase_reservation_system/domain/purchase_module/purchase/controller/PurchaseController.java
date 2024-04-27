@@ -81,4 +81,21 @@ public class PurchaseController {
                 .status(resData.getStatus())
                 .body(resData);
     }
+
+    @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
+    public ResponseEntity purchaseDetail(@PathVariable(value = "id") Long id,
+                                         @AuthenticationPrincipal User user) {
+
+        log.info("purchase detail request: id={}", id);
+
+        Purchase purchase = this.purchaseService.getPurchaseDetail(id, user);
+
+        ResData resData = ResData.of(
+                SuccessCode.PURCHASE_DETAIL,
+                PurchaseCreateResponse.of(purchase)
+        );
+        return ResponseEntity
+                .status(resData.getStatus())
+                .body(resData);
+    }
 }

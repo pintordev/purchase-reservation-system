@@ -25,7 +25,8 @@ public enum SuccessCode {
     DELETE_CART_ITEM(HttpStatus.OK, "delete cart item", "장바구니 상품을 삭제하였습니다"),
     CREATE_PURCHASE(HttpStatus.CREATED, "create purchase", "주문이 완료되었습니다"),
     CREATE_PURCHASE_UNIT(HttpStatus.CREATED, "create purchase unit", "주문이 완료되었습니다"),
-    PURCHASE_LIST(HttpStatus.OK, "purchase list", "주문 목록을 반환합니다"),;
+    PURCHASE_LIST(HttpStatus.OK, "purchase list", "주문 목록을 반환합니다"),
+    PURCHASE_DETAIL(HttpStatus.OK, "purchase detail", "주문 상세 정보를 반환합니다"),;
 
     private HttpStatus status;
     private String code;
