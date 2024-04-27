@@ -69,9 +69,9 @@ public class PurchaseController {
                                        @RequestParam(value = "status", defaultValue = "all") String status,
                                        @AuthenticationPrincipal User user) {
 
-        log.info("purchase list request: page={}, size={}, sort={}, dir={}", page, size, sort, dir);
+        log.info("purchase list request: page={}, size={}, sort={}, dir={}, status={}", page, size, sort, dir, status);
 
-        Page<Purchase> purchaseList = this.purchaseService.getPurchaseList(page, size, sort, dir, status, user);
+        Page<Purchase> purchaseList = this.purchaseService.getPurchaseList(page, size, sort, dir, status.toUpperCase(), user);
 
         ResData resData = ResData.of(
                 SuccessCode.PURCHASE_LIST,

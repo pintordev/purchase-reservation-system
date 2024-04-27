@@ -22,6 +22,10 @@ import com.pintor.purchase_reservation_system.domain.purchase_module.purchase_it
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +34,7 @@ import org.springframework.validation.BindingResult;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -262,5 +267,21 @@ public class PurchaseService {
         log.info("updated {} purchases to DELIVERED", purchaseList.size());
 
         // TODO: 반품 신청 후 D+1에 반품완료
+    }
+
+    public Page<Purchase> getPurchaseList(int page, int size, String sort, String dir, String status, User user) {
+
+        Member member = this.memberService.getMemberByEmail(user.getUsername());
+
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(new Sort.Order(Sort.Direction.fromString(dir), sort));
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sorts));
+
+        if (status.equals("ALL")) {
+            return this.purchaseRepository.findAllByMember(member, pageable);
+        } else {
+            return this.purchaseRepository.findAllByMemberAndStatus(member, PurchaseStatus.valueOf(status), pageable);
+        }
     }
 }
