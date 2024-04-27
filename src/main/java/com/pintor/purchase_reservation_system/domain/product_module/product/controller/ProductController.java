@@ -43,16 +43,16 @@ public class ProductController {
     @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
     public ResponseEntity productDetail(@PathVariable(value = "id") Long id) {
 
-            log.info("product detail request: id={}", id);
+        log.info("product detail request: id={}", id);
 
-            Product product = this.productService.getProductDetail(id);
+        Product product = this.productService.getProductDetail(id);
 
-            ResData resData = ResData.of(
-                    SuccessCode.PRODUCT_DETAIL,
-                    ProductDetailResponse.of(product)
-            );
-            return ResponseEntity
-                    .status(resData.getStatus())
-                    .body(resData);
+        ResData resData = ResData.of(
+                SuccessCode.PRODUCT_DETAIL,
+                ProductDetailResponse.of(product)
+        );
+        return ResponseEntity
+                .status(resData.getStatus())
+                .body(resData);
     }
 }
