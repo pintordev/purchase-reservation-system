@@ -4,7 +4,9 @@ import com.pintor.purchase_reservation_system.domain.product_module.stock.entity
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface StockRepository extends JpaRepository<Stock, Long> {
     List<Stock> findAllByProductIdIn(List<Long> productIds);
+    Optional<Stock> findByProductId(Long productId);
 }

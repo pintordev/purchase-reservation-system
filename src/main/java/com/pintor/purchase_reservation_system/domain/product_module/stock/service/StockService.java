@@ -47,12 +47,11 @@ public class StockService {
 
         Map<Long, Integer> quantityMap = new HashMap<>();
         List<Long> productIds = new ArrayList<>();
-        cartItemList.stream()
-                .forEach(cartItem -> {
-                    Long productId = cartItem.getProduct().getId();
-                    quantityMap.put(productId, cartItem.getQuantity());
-                    productIds.add(productId);
-                });
+        cartItemList.forEach(cartItem -> {
+            Long productId = cartItem.getProduct().getId();
+            quantityMap.put(productId, cartItem.getQuantity());
+            productIds.add(productId);
+        });
 
         List<Stock> stockList = this.stockRepository.findAllByProductIdIn(productIds);
 
@@ -60,19 +59,18 @@ public class StockService {
 
         List<Long> insufficientStockProductIds = new ArrayList<>();
         List<Stock> decreaseStockList = new ArrayList<>();
-        stockList.stream()
-                .forEach(stock -> {
-                    Long productId = stock.getProduct().getId();
-                    int decreasedQuantity = stock.getQuantity() - quantityMap.get(productId);
-                    if (decreasedQuantity < 0) {
-                        insufficientStockProductIds.add(productId);
-                        return;
-                    }
-                    stock = stock.toBuilder()
-                            .quantity(decreasedQuantity)
-                            .build();
-                    decreaseStockList.add(stock);
-                });
+        stockList.forEach(stock -> {
+            Long productId = stock.getProduct().getId();
+            int decreasedQuantity = stock.getQuantity() - quantityMap.get(productId);
+            if (decreasedQuantity < 0) {
+                insufficientStockProductIds.add(productId);
+                return;
+            }
+            stock = stock.toBuilder()
+                    .quantity(decreasedQuantity)
+                    .build();
+            decreaseStockList.add(stock);
+        });
 
         if (!insufficientStockProductIds.isEmpty()) {
 
@@ -87,5 +85,31 @@ public class StockService {
         }
 
         this.stockBulkRepository.saveAll(decreaseStockList);
+    }
+
+    @Transactional
+    public void decrease(Product product, Integer quantity) {
+        Stock stock = this.getStockByProductId(product.getId());
+        int decreasedQuantity = stock.getQuantity() - quantity;
+        if (decreasedQuantity < 0) {
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INSUFFICIENT_STOCK
+                    )
+            );
+        }
+        stock = stock.toBuilder()
+                .quantity(decreasedQuantity)
+                .build();
+        this.stockRepository.save(stock);
+    }
+
+    private Stock getStockByProductId(Long productId) {
+        return this.stockRepository.findByProductId(productId)
+                .orElseThrow(() -> new ApiResException(
+                        ResData.of(
+                                FailCode.STOCK_NOT_FOUND
+                        )
+                ));
     }
 }

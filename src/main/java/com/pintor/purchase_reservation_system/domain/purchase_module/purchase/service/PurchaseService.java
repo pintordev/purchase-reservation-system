@@ -183,6 +183,7 @@ public class PurchaseService {
             this.purchaseItemService.create(request, purchase, product);
         }
         this.purchaseLogService.log(purchase);
+        this.stockService.decrease(product, request.getQuantity());
 
         return this.refresh(purchase);
     }
