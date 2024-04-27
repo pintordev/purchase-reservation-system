@@ -2,10 +2,10 @@ package com.pintor.purchase_reservation_system.domain.product_module.product.ser
 
 import com.pintor.purchase_reservation_system.common.errors.exception.ApiResException;
 import com.pintor.purchase_reservation_system.common.response.FailCode;
-import com.pintor.purchase_reservation_system.common.response.PagedData;
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.domain.product_module.product.entity.Product;
 import com.pintor.purchase_reservation_system.domain.product_module.product.repository.ProductRepository;
+import com.pintor.purchase_reservation_system.domain.product_module.stock.service.StockService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -29,6 +29,12 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+
+    private final StockService stockService;
+
+    public long count() {
+        return this.productRepository.count();
+    }
 
     public Page<Product> getProductList(int page, int size, String sort, String dir) {
 
@@ -105,7 +111,7 @@ public class ProductService {
     }
 
     @Transactional
-    public Product create(String name, Integer price, String description) {
+    public void create(String name, Integer price, String description) {
 
         Product product = Product.builder()
                 .name(name)
@@ -114,6 +120,7 @@ public class ProductService {
                 .openedAt(LocalDateTime.now())
                 .build();
 
-        return this.productRepository.save(product);
+        this.productRepository.save(product);
+        this.stockService.create(product);
     }
 }

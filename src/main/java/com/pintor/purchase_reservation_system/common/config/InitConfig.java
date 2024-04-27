@@ -17,6 +17,10 @@ public class InitConfig {
     @Bean
     public ApplicationRunner runner() {
         return args -> {
+            if (this.productService.count() > 0) {
+                log.info("init config already done");
+                return;
+            }
             log.info("init config start");
 
             this.productService.create("product1", 1000, "product1 description");

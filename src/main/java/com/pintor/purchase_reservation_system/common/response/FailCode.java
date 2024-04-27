@@ -34,6 +34,10 @@ public enum FailCode {
     // Product Fail Code
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "product not found", "상품을 찾을 수 없습니다"),
 
+    // Stock Fail Code
+    INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "insufficient stock", "재고가 부족합니다"),
+    STOCK_NOT_FOUND(HttpStatus.NOT_FOUND, "stock not found", "재고를 찾을 수 없습니다"),
+
     // CartItem Fail Code
     CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "cart item not found", "장바구니 상품을 찾을 수 없습니다"),
 
@@ -43,6 +47,7 @@ public enum FailCode {
     PRODUCT_ID_AND_QUANTITY_REQUIRED(HttpStatus.BAD_REQUEST, "product id and quantity required", "상품 id와 수량은 필수입니다"),
     CART_ITEM_ID_REQUIRED(HttpStatus.BAD_REQUEST, "cart item id required", "장바구니 상품 id는 필수입니다"),
     INVALID_STATUS(HttpStatus.BAD_REQUEST, "invalid status", "주문 상태가 올바르지 않습니다"),
+    INVALID_CANCELLABLE_STATUS(HttpStatus.BAD_REQUEST, "invalid cancellable status", "주문 취소 가능한 상태가 아닙니다"),
 
     // Server Fail Code
     MAIL_SEND_FAIL(HttpStatus.INTERNAL_SERVER_ERROR, "mail send fail", "메일 발송 중 오류가 발생했습니다"),

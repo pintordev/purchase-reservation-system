@@ -8,6 +8,7 @@ import com.pintor.purchase_reservation_system.domain.member_module.member.entity
 import com.pintor.purchase_reservation_system.domain.member_module.member.service.MemberService;
 import com.pintor.purchase_reservation_system.domain.product_module.product.entity.Product;
 import com.pintor.purchase_reservation_system.domain.product_module.product.service.ProductService;
+import com.pintor.purchase_reservation_system.domain.product_module.stock.service.StockService;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart.entity.Cart;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart.service.CartService;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.entity.CartItem;
@@ -55,6 +56,7 @@ public class PurchaseService {
     private final AddressService addressService;
     private final MemberService memberService;
     private final ProductService productService;
+    private final StockService stockService;
 
     private final EntityManager entityManager;
 
@@ -100,6 +102,7 @@ public class PurchaseService {
         this.purchaseItemService.createAll(cartItemList, purchase, request.getType());
         this.purchaseLogService.log(purchase);
         this.cartItemService.deleteAll(cartItemList, request.getType());
+        this.stockService.decreaseAll(cartItemList);
 
         return this.refresh(purchase);
     }
@@ -180,6 +183,7 @@ public class PurchaseService {
             this.purchaseItemService.create(request, purchase, product);
         }
         this.purchaseLogService.log(purchase);
+        this.stockService.decrease(product, request.getQuantity());
 
         return this.refresh(purchase);
     }
@@ -371,6 +375,51 @@ public class PurchaseService {
             throw new ApiResException(
                     ResData.of(
                             FailCode.FORBIDDEN,
+                            bindingResult
+                    )
+            );
+        }
+    }
+
+    @Transactional
+    public void cancelPurchase(Long id, User user) {
+
+        Purchase purchase = this.getPurchaseById(id);
+
+        this.cancelPurchaseValidate(purchase, user);
+
+        purchase = purchase.toBuilder()
+                .status(PurchaseStatus.CANCELLED)
+                .build();
+
+        this.purchaseRepository.save(purchase);
+        this.purchaseLogService.log(purchase);
+        this.stockService.increaseAll(purchase.getPurchaseItemList());
+    }
+
+    private void cancelPurchaseValidate(Purchase purchase, User user) {
+
+        BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "cancelPurchase");
+
+        if (!purchase.getMember().getEmail().equals(user.getUsername())) {
+
+            bindingResult.rejectValue("id", "forbidden", "forbidden access to purchase that does not belong to user");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.FORBIDDEN,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (purchase.getStatus() != PurchaseStatus.PURCHASED) {
+
+            bindingResult.rejectValue("id", "invalid cancellable status", "purchase is not cancellable status");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INVALID_CANCELLABLE_STATUS,
                             bindingResult
                     )
             );
