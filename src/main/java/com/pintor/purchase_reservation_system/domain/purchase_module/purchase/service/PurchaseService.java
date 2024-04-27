@@ -380,4 +380,49 @@ public class PurchaseService {
             );
         }
     }
+
+    @Transactional
+    public void cancelPurchase(Long id, User user) {
+
+        Purchase purchase = this.getPurchaseById(id);
+
+        this.cancelPurchaseValidate(purchase, user);
+
+        purchase = purchase.toBuilder()
+                .status(PurchaseStatus.CANCELLED)
+                .build();
+
+        this.purchaseRepository.save(purchase);
+        this.purchaseLogService.log(purchase);
+        this.stockService.increaseAll(purchase.getPurchaseItemList());
+    }
+
+    private void cancelPurchaseValidate(Purchase purchase, User user) {
+
+        BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "cancelPurchase");
+
+        if (!purchase.getMember().getEmail().equals(user.getUsername())) {
+
+            bindingResult.rejectValue("id", "forbidden", "forbidden access to purchase that does not belong to user");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.FORBIDDEN,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (purchase.getStatus() != PurchaseStatus.PURCHASED) {
+
+            bindingResult.rejectValue("id", "invalid cancellable status", "purchase is not cancellable status");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INVALID_CANCELLABLE_STATUS,
+                            bindingResult
+                    )
+            );
+        }
+    }
 }

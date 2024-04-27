@@ -8,6 +8,7 @@ import com.pintor.purchase_reservation_system.domain.product_module.stock.entity
 import com.pintor.purchase_reservation_system.domain.product_module.stock.repository.StockBulkRepository;
 import com.pintor.purchase_reservation_system.domain.product_module.stock.repository.StockRepository;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.entity.CartItem;
+import com.pintor.purchase_reservation_system.domain.purchase_module.purchase_item.entity.PurchaseItem;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -111,5 +113,29 @@ public class StockService {
                                 FailCode.STOCK_NOT_FOUND
                         )
                 ));
+    }
+
+    @Transactional
+    public void increaseAll(List<PurchaseItem> purchaseItemList) {
+        Map<Long, Integer> quantityMap = new HashMap<>();
+        List<Long> productIds = new ArrayList<>();
+        purchaseItemList.forEach(purchaseItem -> {
+            Long productId = purchaseItem.getProduct().getId();
+            quantityMap.put(productId, purchaseItem.getQuantity());
+            productIds.add(productId);
+        });
+
+        List<Stock> stockList = this.stockRepository.findAllByProductIdIn(productIds);
+        stockList = stockList.stream()
+                .map(stock -> {
+                    Long productId = stock.getProduct().getId();
+                    int increasedQuantity = stock.getQuantity() + quantityMap.get(productId);
+                    return stock.toBuilder()
+                            .quantity(increasedQuantity)
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        this.stockBulkRepository.saveAll(stockList);
     }
 }
