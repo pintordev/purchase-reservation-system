@@ -353,4 +353,27 @@ public class PurchaseService {
             );
         }
     }
+
+    public Purchase getPurchaseDetail(Long id, User user) {
+        Purchase purchase = this.getPurchaseById(id);
+        this.getPurchaseDetailValidate(purchase, user);
+        return purchase;
+    }
+
+    private void getPurchaseDetailValidate(Purchase purchase, User user) {
+
+        BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "purchaseDetail");
+
+        if (!purchase.getMember().getEmail().equals(user.getUsername())) {
+
+            bindingResult.rejectValue("id", "forbidden", "forbidden access to purchase that does not belong to user");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.FORBIDDEN,
+                            bindingResult
+                    )
+            );
+        }
+    }
 }
