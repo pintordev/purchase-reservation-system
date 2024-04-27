@@ -34,6 +34,9 @@ public enum FailCode {
     // Product Fail Code
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "product not found", "상품을 찾을 수 없습니다"),
 
+    // Stock Fail Code
+    INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "insufficient stock", "재고가 부족합니다"),
+
     // CartItem Fail Code
     CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "cart item not found", "장바구니 상품을 찾을 수 없습니다"),
 

@@ -8,6 +8,7 @@ import com.pintor.purchase_reservation_system.domain.member_module.member.entity
 import com.pintor.purchase_reservation_system.domain.member_module.member.service.MemberService;
 import com.pintor.purchase_reservation_system.domain.product_module.product.entity.Product;
 import com.pintor.purchase_reservation_system.domain.product_module.product.service.ProductService;
+import com.pintor.purchase_reservation_system.domain.product_module.stock.service.StockService;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart.entity.Cart;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart.service.CartService;
 import com.pintor.purchase_reservation_system.domain.purchase_module.cart_item.entity.CartItem;
@@ -55,6 +56,7 @@ public class PurchaseService {
     private final AddressService addressService;
     private final MemberService memberService;
     private final ProductService productService;
+    private final StockService stockService;
 
     private final EntityManager entityManager;
 
@@ -100,6 +102,7 @@ public class PurchaseService {
         this.purchaseItemService.createAll(cartItemList, purchase, request.getType());
         this.purchaseLogService.log(purchase);
         this.cartItemService.deleteAll(cartItemList, request.getType());
+        this.stockService.decreaseAll(cartItemList);
 
         return this.refresh(purchase);
     }
