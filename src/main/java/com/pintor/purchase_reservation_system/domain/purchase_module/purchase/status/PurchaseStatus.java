@@ -15,4 +15,12 @@ public enum PurchaseStatus {
         this.status = status;
     }
 
+    public static boolean isValid(String status) {
+        try {
+            PurchaseStatus.valueOf(status);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
 }

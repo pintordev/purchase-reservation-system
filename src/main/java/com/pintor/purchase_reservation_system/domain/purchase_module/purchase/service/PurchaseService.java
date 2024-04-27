@@ -22,14 +22,21 @@ import com.pintor.purchase_reservation_system.domain.purchase_module.purchase_it
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.MapBindingResult;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 @Slf4j
@@ -201,7 +208,7 @@ public class PurchaseService {
             );
         }
 
-        if (request.getType() == "product" && (request.getProductId() == null || request.getQuantity() == null)) {
+        if (request.getType().equals("product") && (request.getProductId() == null || request.getQuantity() == null)) {
 
             bindingResult.rejectValue("productId", "product id is required", "product id is required");
             bindingResult.rejectValue("quantity", "quantity is required", "quantity is required");
@@ -214,7 +221,7 @@ public class PurchaseService {
             );
         }
 
-        if (request.getType() == "cartItem" && request.getCartItemId() == null) {
+        if (request.getType().equals("cartItem") && request.getCartItemId() == null) {
 
             bindingResult.rejectValue("cartItemId", "cart item id is required", "cart item id is required");
 
@@ -254,7 +261,7 @@ public class PurchaseService {
 
         log.info("updated {} purchases to ON_DELIVERY", purchaseList.size());
 
-        // 배송중 후 D+2일에 배송완료
+        // 배송중 후 D+1일에 배송완료
         purchaseList = this.purchaseRepository.findByStatusAndUpdatedAtBetween(PurchaseStatus.ON_DELIVERY, start, end);
         this.purchaseBulkRepository.saveAllWithStatus(purchaseList, PurchaseStatus.DELIVERED, now);
         this.purchaseLogService.log(purchaseList, PurchaseStatus.DELIVERED, now);
@@ -262,5 +269,88 @@ public class PurchaseService {
         log.info("updated {} purchases to DELIVERED", purchaseList.size());
 
         // TODO: 반품 신청 후 D+1에 반품완료
+    }
+
+    public Page<Purchase> getPurchaseList(int page, int size, String sort, String dir, String status, User user) {
+
+        this.getPurchaseListValidate(page, size, sort, dir, status);
+
+        Member member = this.memberService.getMemberByEmail(user.getUsername());
+
+        List<Sort.Order> sorts = new ArrayList<>();
+        sorts.add(new Sort.Order(Sort.Direction.fromString(dir), sort));
+
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sorts));
+
+        if (status.equals("ALL")) {
+            return this.purchaseRepository.findAllByMember(member, pageable);
+        } else {
+            return this.purchaseRepository.findAllByMemberAndStatus(member, PurchaseStatus.valueOf(status), pageable);
+        }
+    }
+
+    private void getPurchaseListValidate(int page, int size, String sort, String dir, String status) {
+
+        BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "purchaseList");
+
+        if (size < 1) {
+
+            bindingResult.rejectValue("size", "invalid size", "size must be greater than 0");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INVALID_SIZE,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (page < 1 || this.purchaseRepository.count() / size < page - 1) {
+
+            bindingResult.rejectValue("page", "invalid page", "page does not exist");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INVALID_PAGE,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (!sort.equals("createdAt") && !sort.equals("openedAt") && !sort.equals("price")) {
+
+            bindingResult.rejectValue("sort", "invalid sort", "sort is invalid");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INVALID_SORT,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (!dir.equals("asc") && !dir.equals("desc")) {
+
+            bindingResult.rejectValue("dir", "invalid dir", "dir is invalid");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INVALID_SORT,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (!status.equals("ALL") && !PurchaseStatus.isValid(status)) {
+
+            bindingResult.rejectValue("status", "invalid status", "status is invalid");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INVALID_STATUS,
+                            bindingResult
+                    )
+            );
+        }
     }
 }
