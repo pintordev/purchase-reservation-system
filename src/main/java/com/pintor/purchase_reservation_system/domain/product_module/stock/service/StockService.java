@@ -121,8 +121,12 @@ public class StockService {
         List<Long> productIds = new ArrayList<>();
         purchaseItemList.forEach(purchaseItem -> {
             Long productId = purchaseItem.getProduct().getId();
-            quantityMap.put(productId, purchaseItem.getQuantity());
-            productIds.add(productId);
+            Integer value = quantityMap.putIfAbsent(productId, purchaseItem.getQuantity());
+            if (value != null) {
+                quantityMap.put(productId, value + purchaseItem.getQuantity());
+            } else {
+                productIds.add(productId);
+            }
         });
 
         List<Stock> stockList = this.stockRepository.findAllByProductIdIn(productIds);

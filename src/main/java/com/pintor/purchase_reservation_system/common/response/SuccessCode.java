@@ -27,7 +27,8 @@ public enum SuccessCode {
     CREATE_PURCHASE_UNIT(HttpStatus.CREATED, "create purchase unit", "주문이 완료되었습니다"),
     PURCHASE_LIST(HttpStatus.OK, "purchase list", "주문 목록을 반환합니다"),
     PURCHASE_DETAIL(HttpStatus.OK, "purchase detail", "주문 상세 정보를 반환합니다"),
-    CANCEL_PURCHASE(HttpStatus.OK, "cancel purchase", "주문을 취소하였습니다"),;
+    CANCEL_PURCHASE(HttpStatus.OK, "cancel purchase", "주문을 취소하였습니다"),
+    RETURN_PURCHASE(HttpStatus.OK, "return purchase", "반품 신청을 완료하였습니다"),;
 
     private HttpStatus status;
     private String code;
