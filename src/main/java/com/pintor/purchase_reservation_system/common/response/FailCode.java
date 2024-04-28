@@ -22,6 +22,7 @@ public enum FailCode {
     // Auth Fail Code
     EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "expired access token", "인증 토큰이 만료되었습니다"),
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "invalid access token", "유효하지 않은 인증 토큰입니다"),
+    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "invalid refresh token", "유효하지 않은 리프레시 토큰입니다"),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "unauthorized", "인증되지 않은 사용자입니다"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "forbidden", "권한이 없습니다"),
     EMAIL_NOT_VERIFIED(HttpStatus.FORBIDDEN, "email not verified", "이메일 인증을 완료해주세요"),

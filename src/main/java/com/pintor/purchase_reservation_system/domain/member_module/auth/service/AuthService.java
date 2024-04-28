@@ -205,4 +205,29 @@ public class AuthService {
         Member member = this.memberService.getMemberByEmail(user.getUsername());
         this.authTokenRepository.deleteAllById(Collections.singleton(member.getId()));
     }
+
+    @Transactional
+    public String refreshAccessToken(String refreshToken) {
+
+        AuthToken authToken = this.getAuthTokenByRefreshToken(refreshToken);
+        Member member = this.memberService.getMemberById(authToken.getId());
+
+        String accessToken = this.jwtUtil.genAccessToken(member);
+        authToken = authToken.toBuilder()
+                .accessToken(accessToken)
+                .build();
+        this.authTokenRepository.save(authToken);
+
+        return accessToken;
+    }
+
+    private AuthToken getAuthTokenByRefreshToken(String refreshToken) {
+
+        return this.authTokenRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new ApiResException(
+                        ResData.of(
+                                FailCode.INVALID_REFRESH_TOKEN
+                        )
+                ));
+    }
 }
