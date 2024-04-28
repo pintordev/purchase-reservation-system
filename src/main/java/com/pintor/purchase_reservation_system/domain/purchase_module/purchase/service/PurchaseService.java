@@ -19,6 +19,7 @@ import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.re
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.request.PurchaseCreateRequest;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.request.PurchaseCreateUnitRequest;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase.status.PurchaseStatus;
+import com.pintor.purchase_reservation_system.domain.purchase_module.purchase_item.entity.PurchaseItem;
 import com.pintor.purchase_reservation_system.domain.purchase_module.purchase_item.service.PurchaseItemService;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -272,7 +273,18 @@ public class PurchaseService {
 
         log.info("updated {} purchases to DELIVERED", purchaseList.size());
 
-        // TODO: 반품 신청 후 D+1에 반품완료
+        // 반품 신청 후 D+1에 반품완료
+        purchaseList = this.purchaseRepository.findByStatusAndUpdatedAtBetween(PurchaseStatus.ON_RETURN, start, end);
+        this.purchaseBulkRepository.saveAllWithStatus(purchaseList, PurchaseStatus.RETURNED, now);
+        this.purchaseLogService.log(purchaseList, PurchaseStatus.RETURNED, now);
+
+        log.info("updated {} purchases to RETURNED", purchaseList.size());
+
+        // 반품완료 후 재고 반영
+        List<PurchaseItem> purchaseItemList = this.purchaseItemService.getAllByPurchaseList(purchaseList);
+        this.stockService.increaseAll(purchaseItemList);
+
+        log.info("reverted stocks");
     }
 
     public Page<Purchase> getPurchaseList(int page, int size, String sort, String dir, String status, User user) {
@@ -394,7 +406,8 @@ public class PurchaseService {
 
         this.purchaseRepository.save(purchase);
         this.purchaseLogService.log(purchase);
-        this.stockService.increaseAll(purchase.getPurchaseItemList());
+        List<PurchaseItem> purchaseItemList = this.purchaseItemService.getAllByPurchase(purchase);
+        this.stockService.increaseAll(purchaseItemList);
     }
 
     private void cancelPurchaseValidate(Purchase purchase, User user) {

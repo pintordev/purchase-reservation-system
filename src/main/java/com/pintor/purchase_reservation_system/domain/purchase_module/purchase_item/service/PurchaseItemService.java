@@ -66,4 +66,15 @@ public class PurchaseItemService {
                 .build();
         this.purchaseItemRepository.save(purchaseItem);
     }
+
+    public List<PurchaseItem> getAllByPurchaseList(List<Purchase> purchaseList) {
+        List<Long> purchaseIds = purchaseList.stream()
+                .map(Purchase::getId)
+                .collect(Collectors.toList());
+        return this.purchaseItemRepository.findAllByPurchaseIdIn(purchaseIds);
+    }
+
+    public List<PurchaseItem> getAllByPurchase(Purchase purchase) {
+        return this.purchaseItemRepository.findAllByPurchase(purchase);
+    }
 }
