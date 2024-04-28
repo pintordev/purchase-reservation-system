@@ -114,4 +114,20 @@ public class PurchaseController {
                 .status(resData.getStatus())
                 .body(resData);
     }
+
+    @PatchMapping(value = "/{id}/return", consumes = MediaType.ALL_VALUE)
+    public ResponseEntity returnPurchase(@PathVariable(value = "id") Long id,
+                                         @AuthenticationPrincipal User user) {
+
+        log.info("purchase return request: id={}", id);
+
+        this.purchaseService.returnPurchase(id, user);
+
+        ResData resData = ResData.of(
+                SuccessCode.RETURN_PURCHASE
+        );
+        return ResponseEntity
+                .status(resData.getStatus())
+                .body(resData);
+    }
 }
