@@ -11,6 +11,7 @@ public enum SuccessCode {
     VERIFY_MAIL(HttpStatus.OK, "verify mail", "이메일 인증에 성공하였습니다"),
     LOGIN(HttpStatus.OK, "login", "인증 토큰을 반환합니다"),
     LOGOUT(HttpStatus.OK, "logout", "로그아웃에 성공하였습니다"),
+    LOGOUT_ALL(HttpStatus.OK, "logout all", "모든 기기에서 로그아웃에 성공하였습니다"),
     UPDATE_PROFILE(HttpStatus.OK, "update profile", "프로필 업데이트가 완료되었습니다"),
     UPDATE_PASSWORD(HttpStatus.OK, "update password", "비밀번호 업데이트가 완료되었습니다"),
 

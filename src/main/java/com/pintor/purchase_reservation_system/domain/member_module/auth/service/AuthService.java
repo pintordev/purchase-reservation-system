@@ -14,14 +14,17 @@ import com.pintor.purchase_reservation_system.domain.member_module.auth.request.
 import com.pintor.purchase_reservation_system.domain.member_module.auth.response.AuthLoginResponse;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.repository.MemberRepository;
+import com.pintor.purchase_reservation_system.domain.member_module.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
 import java.security.SecureRandom;
+import java.util.Collections;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -38,6 +41,8 @@ public class AuthService {
     private final MailTokenRepository mailTokenRepository;
     private final MemberRepository memberRepository;
     private final AuthTokenRepository authTokenRepository;
+
+    private final MemberService memberService;
 
     private final EncryptService encryptService;
     private final JwtUtil jwtUtil;
@@ -192,5 +197,12 @@ public class AuthService {
         if (authToken != null) {
             this.authTokenRepository.delete(authToken);
         }
+    }
+
+    @Transactional
+    public void logoutAll(User user) {
+
+        Member member = this.memberService.getMemberByEmail(user.getUsername());
+        this.authTokenRepository.deleteAllById(Collections.singleton(member.getId()));
     }
 }
