@@ -425,4 +425,17 @@ public class PurchaseService {
             );
         }
     }
+
+    @Transactional
+    public void returnPurchase(Long id, User user) {
+
+        Purchase purchase = this.getPurchaseById(id);
+
+        purchase = purchase.toBuilder()
+                .status(PurchaseStatus.ON_RETURN)
+                .build();
+
+        this.purchaseRepository.save(purchase);
+        this.purchaseLogService.log(purchase);
+    }
 }
