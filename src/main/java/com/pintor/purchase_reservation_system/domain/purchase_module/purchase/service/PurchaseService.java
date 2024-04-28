@@ -431,11 +431,42 @@ public class PurchaseService {
 
         Purchase purchase = this.getPurchaseById(id);
 
+        this.returnPurchaseValidate(purchase, user);
+
         purchase = purchase.toBuilder()
                 .status(PurchaseStatus.ON_RETURN)
                 .build();
 
         this.purchaseRepository.save(purchase);
         this.purchaseLogService.log(purchase);
+    }
+
+    private void returnPurchaseValidate(Purchase purchase, User user) {
+
+        BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "returnPurchase");
+
+        if (!purchase.getMember().getEmail().equals(user.getUsername())) {
+
+            bindingResult.rejectValue("id", "forbidden", "forbidden access to purchase that does not belong to user");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.FORBIDDEN,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (purchase.getStatus() != PurchaseStatus.DELIVERED || !purchase.getUpdatedAt().isAfter(LocalDateTime.now().minusDays(1))) {
+
+            bindingResult.rejectValue("id", "invalid returnable status", "purchase is not returnable status");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INVALID_RETURNABLE_STATUS,
+                            bindingResult
+                    )
+            );
+        }
     }
 }
