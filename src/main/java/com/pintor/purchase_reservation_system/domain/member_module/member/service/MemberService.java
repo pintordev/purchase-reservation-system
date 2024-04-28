@@ -121,7 +121,7 @@ public class MemberService {
         this.memberRepository.save(member);
     }
 
-    private Member getMemberById(Long memberId) {
+    public Member getMemberById(Long memberId) {
         return this.memberRepository.findById(memberId)
                 .orElseThrow(() -> new ApiResException(
                         ResData.of(

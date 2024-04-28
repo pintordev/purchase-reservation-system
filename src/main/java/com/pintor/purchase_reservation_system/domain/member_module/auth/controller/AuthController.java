@@ -89,4 +89,20 @@ public class AuthController {
                 .status(resData.getStatus())
                 .body(resData);
     }
+
+    @PostMapping(value = "/refresh", consumes = MediaType.ALL_VALUE)
+    public ResponseEntity refreshAccessToken(HttpServletRequest request,
+                                             HttpServletResponse response) {
+
+        String refreshToken = request.getHeader("Refresh");
+        String accessToken = this.authService.refreshAccessToken(refreshToken);
+
+        response.setHeader("Authorization", accessToken);
+        ResData resData = ResData.of(
+                SuccessCode.REFRESH_ACCESS_TOKEN
+        );
+        return ResponseEntity
+                .status(resData.getStatus())
+                .body(resData);
+    }
 }

@@ -20,6 +20,7 @@ public class AuthToken {
     @Id
     private Long id;
 
+    @Indexed
     private String refreshToken;
 
     @Indexed
