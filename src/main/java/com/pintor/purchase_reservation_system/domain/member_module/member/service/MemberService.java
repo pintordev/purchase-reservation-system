@@ -5,6 +5,7 @@ import com.pintor.purchase_reservation_system.common.response.FailCode;
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.service.AddressService;
 import com.pintor.purchase_reservation_system.common.service.EncryptService;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.AuthTokenRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.repository.MemberRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberPasswordUpdateRequest;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
+import java.util.Collections;
+
 @Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -25,6 +28,7 @@ import org.springframework.validation.BindingResult;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final AuthTokenRepository authTokenRepository;
 
     private final EncryptService encryptService;
     private final AddressService addressService;
@@ -187,7 +191,7 @@ public class MemberService {
             );
         }
 
-        if (request.getSubAddress() != null && (request.getZoneCode() == null || request.getAddress() == null)) {
+        if (request.getSubAddress() != null && request.getZoneCode() == null) {
 
             bindingResult.rejectValue("subAddress", "subAddress without zoneCode and address", "subAddress must be null when zoneCode and address are null");
 
@@ -201,7 +205,7 @@ public class MemberService {
             );
         }
 
-        if (request.getZoneCode() != null && request.getAddress() != null && !this.addressService.isValidAddress(request.getZoneCode(), request.getAddress())) {
+        if (request.getZoneCode() != null && !this.addressService.isValidAddress(request.getZoneCode(), request.getAddress())) {
 
             bindingResult.rejectValue("address", "invalid address", "invalid address");
 
@@ -228,6 +232,7 @@ public class MemberService {
                 .build();
 
         this.memberRepository.save(member);
+        this.authTokenRepository.deleteAllById(Collections.singleton(member.getId()));
     }
 
     private void passwordUpdateValidate(MemberPasswordUpdateRequest request, BindingResult bindingResult, Member member) {

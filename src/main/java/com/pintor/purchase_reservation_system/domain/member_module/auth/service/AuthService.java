@@ -201,7 +201,6 @@ public class AuthService {
 
     @Transactional
     public void logoutAll(User user) {
-
         Member member = this.memberService.getMemberByEmail(user.getUsername());
         this.authTokenRepository.deleteAllById(Collections.singleton(member.getId()));
     }
