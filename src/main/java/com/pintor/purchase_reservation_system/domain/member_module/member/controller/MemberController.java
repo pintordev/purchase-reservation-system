@@ -5,9 +5,11 @@ import com.pintor.purchase_reservation_system.common.response.SuccessCode;
 import com.pintor.purchase_reservation_system.common.service.MailService;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.service.AuthService;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
+import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberPasswordResetRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberPasswordUpdateRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberProfileUpdateRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberSignupRequest;
+import com.pintor.purchase_reservation_system.domain.member_module.member.response.MemberPasswordResetResponse;
 import com.pintor.purchase_reservation_system.domain.member_module.member.response.MemberSignupResponse;
 import com.pintor.purchase_reservation_system.domain.member_module.member.service.MemberService;
 import jakarta.validation.Valid;
@@ -74,6 +76,22 @@ public class MemberController {
 
         ResData resData = ResData.of(
                 SuccessCode.UPDATE_PASSWORD
+        );
+        return ResponseEntity
+                .status(resData.getStatus())
+                .body(resData);
+    }
+
+    @PostMapping(value = "/password")
+    public ResponseEntity resetPassword(@Valid @RequestBody MemberPasswordResetRequest request, BindingResult bindingResult) {
+
+        log.info("password reset request: {}", request);
+
+        MemberPasswordResetResponse response = this.memberService.resetPassword(request, bindingResult);
+        this.mailService.sendTempPassword(response.getEmail(), response.getPassword());
+
+        ResData resData = ResData.of(
+                SuccessCode.RESET_PASSWORD
         );
         return ResponseEntity
                 .status(resData.getStatus())

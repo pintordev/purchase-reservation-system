@@ -29,6 +29,7 @@ public class SecurityConfig {
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
                                 .requestMatchers(HttpMethod.POST, "/api/members").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/members/password").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/auth/verify/mail").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
