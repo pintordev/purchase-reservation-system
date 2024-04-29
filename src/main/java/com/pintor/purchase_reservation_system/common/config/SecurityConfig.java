@@ -28,14 +28,15 @@ public class SecurityConfig {
         http
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                                .requestMatchers(HttpMethod.POST, "/api/members").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/members/password").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/auth/verify/mail").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                                .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
-                                .requestMatchers(HttpMethod.GET, "/api/products/*").permitAll()
-                                .anyRequest().authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/members").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/members/password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/verify/mail").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login/mail").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/*").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint(apiAuthenticationExceptionHandler)

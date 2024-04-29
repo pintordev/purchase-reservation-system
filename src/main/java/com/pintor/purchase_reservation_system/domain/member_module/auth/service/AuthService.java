@@ -6,12 +6,13 @@ import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.service.EncryptService;
 import com.pintor.purchase_reservation_system.common.util.JwtUtil;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.entity.AuthToken;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.entity.LoginToken;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.entity.MailToken;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.AuthTokenRepository;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.LoginTokenRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.MailTokenRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthLoginRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthVerifyMailRequest;
-import com.pintor.purchase_reservation_system.domain.member_module.auth.response.AuthLoginResponse;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.repository.MemberRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.member.service.MemberService;
@@ -38,9 +39,13 @@ public class AuthService {
     @Value("${jwt.expiration.refresh_token}")
     private Long authTokenExpiration;
 
+    @Value("${login.expiration}")
+    private Long loginTokenExpiration;
+
     private final MailTokenRepository mailTokenRepository;
     private final MemberRepository memberRepository;
     private final AuthTokenRepository authTokenRepository;
+    private final LoginTokenRepository loginTokenRepository;
 
     private final MemberService memberService;
 
@@ -105,15 +110,15 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthLoginResponse login(AuthLoginRequest request, BindingResult bindingResult) {
+    public Member login(AuthLoginRequest request, BindingResult bindingResult) {
 
         Member member = this.loginValidate(request, bindingResult);
 
-        String accessToken = this.jwtUtil.genAccessToken(member);
-        String refreshToken = this.jwtUtil.genRefreshToken();
-        this.saveAuthToken(member, refreshToken, accessToken);
+//        String accessToken = this.jwtUtil.genAccessToken(member);
+//        String refreshToken = this.jwtUtil.genRefreshToken();
+//        this.saveAuthToken(member, refreshToken, accessToken);
 
-        return AuthLoginResponse.of(accessToken, refreshToken);
+        return member;
     }
 
     private Member loginValidate(AuthLoginRequest request, BindingResult bindingResult) {
@@ -228,5 +233,21 @@ public class AuthService {
                                 FailCode.INVALID_REFRESH_TOKEN
                         )
                 ));
+    }
+
+    @Transactional
+    public String saveLoginToken(Long memberId) {
+
+        String code = this.generateToken(32);
+
+        LoginToken loginToken = LoginToken.builder()
+                .id(code)
+                .memberId(memberId)
+                .timeToLive(this.loginTokenExpiration)
+                .build();
+
+        this.loginTokenRepository.save(loginToken);
+
+        return code;
     }
 }
