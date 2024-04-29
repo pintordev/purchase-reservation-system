@@ -145,6 +145,15 @@ public class MemberService {
                 ));
     }
 
+    private Member getMemberByEmailAndNameAndPhoneNumber(String email, String name, String phoneNumber) {
+        return this.memberRepository.findByEmailAndNameAndPhoneNumber(email, name, phoneNumber)
+                .orElseThrow(() -> new ApiResException(
+                        ResData.of(
+                                FailCode.MEMBER_NOT_FOUND
+                        )
+                ));
+    }
+
     @Transactional
     public void profileUpdate(MemberProfileUpdateRequest request, BindingResult bindingResult, User user) {
 
@@ -283,26 +292,20 @@ public class MemberService {
     @Transactional
     public Member resetPassword(MemberPasswordResetRequest request, BindingResult bindingResult) {
 
-        this.resetPasswordValidate(request, bindingResult);
+        this.resetPasswordValidate(bindingResult);
 
-        Member member = this.memberRepository.findByEmailAndNameAndPhoneNumber(request.getEmail(), request.getName(), request.getPhoneNumber())
-                .orElseThrow(() -> new ApiResException(
-                        ResData.of(
-                                FailCode.MEMBER_NOT_FOUND
-                        )
-                ));
+        Member member = this.getMemberByEmailAndNameAndPhoneNumber(request.getEmail(), request.getName(), request.getPhoneNumber());
 
         String tempPassword = this.generateTempPassword(16);
         member = member.toBuilder()
                 .password(this.encryptService.encode(tempPassword))
                 .build();
 
-        this.memberRepository.save(member);
-
-        return member;
+        return this.memberRepository.save(member);
     }
 
-    private void resetPasswordValidate(MemberPasswordResetRequest request, BindingResult bindingResult) {
+    private void resetPasswordValidate(BindingResult bindingResult) {
+
         if (bindingResult.hasErrors()) {
 
             log.error("binding error: {}", bindingResult);
