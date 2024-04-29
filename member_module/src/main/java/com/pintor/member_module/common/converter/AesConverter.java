@@ -1,6 +1,6 @@
 package com.pintor.member_module.common.converter;
 
-import com.pintor.member_module.common.service.EncryptService;
+import com.pintor.member_module.common.util.EncryptUtil;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import lombok.RequiredArgsConstructor;
@@ -11,15 +11,15 @@ import org.springframework.stereotype.Component;
 @Converter
 public class AesConverter implements AttributeConverter<String, String> {
 
-    private final EncryptService encryptService;
+    private final EncryptUtil encryptUtil;
 
     @Override
     public String convertToDatabaseColumn(String attribute) {
-        return this.encryptService.encrypt(attribute);
+        return this.encryptUtil.encrypt(attribute);
     }
 
     @Override
     public String convertToEntityAttribute(String dbData) {
-        return this.encryptService.decrypt(dbData);
+        return this.encryptUtil.decrypt(dbData);
     }
 }

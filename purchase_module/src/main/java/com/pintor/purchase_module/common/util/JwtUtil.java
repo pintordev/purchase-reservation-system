@@ -1,6 +1,6 @@
 package com.pintor.purchase_module.common.util;
 
-import com.pintor.purchase_module.domain.member_module.member.entity.Member;
+import com.pintor.member_module.domain.member.entity.Member;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;

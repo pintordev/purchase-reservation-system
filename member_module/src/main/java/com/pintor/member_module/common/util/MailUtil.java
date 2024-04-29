@@ -1,24 +1,24 @@
-package com.pintor.purchase_module.common.service;
+package com.pintor.member_module.common.util;
 
-import com.pintor.purchase_module.common.errors.exception.ApiResException;
-import com.pintor.purchase_module.common.response.FailCode;
-import com.pintor.purchase_module.common.response.ResData;
+import com.pintor.member_module.common.errors.exception.ApiResException;
+import com.pintor.member_module.common.response.FailCode;
+import com.pintor.member_module.common.response.ResData;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
-@Service
-public class MailService {
+@Component
+public class MailUtil {
 
     private final JavaMailSender javaMailSender;
 
     @Async
-    private void sendEmail(String email, String title, String content) {
+    protected void sendEmail(String email, String title, String content) {
         MimeMessage mimeMessage = this.javaMailSender.createMimeMessage();
         MimeMessageHelper helper = null;
         try {

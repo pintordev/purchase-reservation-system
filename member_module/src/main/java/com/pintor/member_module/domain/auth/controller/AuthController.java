@@ -2,7 +2,7 @@ package com.pintor.member_module.domain.auth.controller;
 
 import com.pintor.member_module.common.response.ResData;
 import com.pintor.member_module.common.response.SuccessCode;
-import com.pintor.member_module.common.service.MailService;
+import com.pintor.member_module.common.util.MailUtil;
 import com.pintor.member_module.domain.auth.request.AuthLoginMailRequest;
 import com.pintor.member_module.domain.auth.request.AuthLoginRequest;
 import com.pintor.member_module.domain.auth.request.AuthVerifyMailRequest;
@@ -33,7 +33,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final MemberService memberService;
-    private final MailService mailService;
+    private final MailUtil mailUtil;
 
     @PostMapping(value = "/verify/mail", consumes = MediaType.ALL_VALUE)
     public ResponseEntity verifyMail(@Valid @RequestBody AuthVerifyMailRequest request, BindingResult bindingResult) {
@@ -56,7 +56,7 @@ public class AuthController {
 
         Member member = this.authService.login(request, bindingResult);
         String code = this.authService.saveLoginToken(member.getId());
-        this.mailService.sendLoginCode(member.getEmail(), code);
+        this.mailUtil.sendLoginCode(member.getEmail(), code);
 
         ResData resData = ResData.of(
                 SuccessCode.LOGIN

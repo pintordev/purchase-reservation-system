@@ -1,9 +1,9 @@
 package com.pintor.purchase_module.domain.cart.service;
 
+import com.pintor.member_module.domain.member.entity.Member;
+import com.pintor.member_module.domain.member.service.MemberService;
 import com.pintor.purchase_module.domain.cart.entity.Cart;
 import com.pintor.purchase_module.domain.cart.repository.CartRepository;
-import com.pintor.purchase_module.domain.member_module.member.entity.Member;
-import com.pintor.purchase_module.domain.member_module.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.User;
@@ -34,7 +34,7 @@ public class CartService {
     }
 
     @Transactional
-    private Cart createCart(Member member) {
+    protected Cart createCart(Member member) {
 
         Cart cart = Cart.builder()
                 .member(member)

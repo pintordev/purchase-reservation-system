@@ -1,6 +1,6 @@
 package com.pintor.purchase_module.domain.cart.entity;
 
-import com.pintor.purchase_module.domain.member_module.member.entity.Member;
+import com.pintor.member_module.domain.member.entity.Member;
 import com.pintor.purchase_module.domain.cart_item.entity.CartItem;
 import jakarta.persistence.*;
 import lombok.*;

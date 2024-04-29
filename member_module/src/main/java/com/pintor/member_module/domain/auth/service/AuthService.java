@@ -3,7 +3,7 @@ package com.pintor.member_module.domain.auth.service;
 import com.pintor.member_module.common.errors.exception.ApiResException;
 import com.pintor.member_module.common.response.FailCode;
 import com.pintor.member_module.common.response.ResData;
-import com.pintor.member_module.common.service.EncryptService;
+import com.pintor.member_module.common.util.EncryptUtil;
 import com.pintor.member_module.common.util.JwtUtil;
 import com.pintor.member_module.domain.auth.repository.AuthTokenRepository;
 import com.pintor.member_module.domain.auth.repository.LoginTokenRepository;
@@ -51,7 +51,7 @@ public class AuthService {
 
     private final MemberService memberService;
 
-    private final EncryptService encryptService;
+    private final EncryptUtil encryptUtil;
     private final JwtUtil jwtUtil;
 
     @Transactional
@@ -149,7 +149,7 @@ public class AuthService {
             );
         }
 
-        if (!this.encryptService.passwordMatches(request.getPassword(), member.getPassword())) {
+        if (!this.encryptUtil.passwordMatches(request.getPassword(), member.getPassword())) {
 
             bindingResult.rejectValue("password", "password not match");
 

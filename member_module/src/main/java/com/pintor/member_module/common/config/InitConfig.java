@@ -1,6 +1,6 @@
 package com.pintor.member_module.common.config;
 
-import com.pintor.member_module.domain.product_module.product.service.ProductService;
+import com.pintor.member_module.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
@@ -12,19 +12,18 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class InitConfig {
 
-    private final ProductService productService;
+    private final MemberService memberService;
 
     @Bean
     public ApplicationRunner runner() {
         return args -> {
-            if (this.productService.count() > 0) {
+            if (this.memberService.count() > 0) {
                 log.info("init config already done");
                 return;
             }
             log.info("init config start");
 
-            this.productService.create("product1", 1000, "product1 description");
-            this.productService.create("product2", 2000, "product2 description");
+            // TODO: add default member data
         };
     }
 }

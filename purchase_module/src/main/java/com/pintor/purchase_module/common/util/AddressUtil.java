@@ -1,4 +1,4 @@
-package com.pintor.member_module.common.service;
+package com.pintor.purchase_module.common.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,7 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class AddressService {
+public class AddressUtil {
 
     @Value("${kakao.api.key}")
     private String KAKAO_API_KEY;

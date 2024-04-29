@@ -1,17 +1,15 @@
-package com.pintor.product_module.common.service;
+package com.pintor.purchase_module.common.util;
 
-import com.pintor.product_module.domain.purchase_module.purchase.service.PurchaseService;
+import com.pintor.purchase_module.domain.purchase.service.PurchaseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.stereotype.Component;
 
 @Slf4j
-@Transactional(readOnly = true)
 @RequiredArgsConstructor
-@Service
-public class ScheduledJobService {
+@Component
+public class ScheduledJobUtil {
 
     private final PurchaseService purchaseService;
 

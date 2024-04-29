@@ -7,8 +7,6 @@ import com.pintor.product_module.domain.product.entity.Product;
 import com.pintor.product_module.domain.stock.entity.Stock;
 import com.pintor.product_module.domain.stock.repository.StockBulkRepository;
 import com.pintor.product_module.domain.stock.repository.StockRepository;
-import com.pintor.product_module.domain.purchase_module.cart_item.entity.CartItem;
-import com.pintor.product_module.domain.purchase_module.purchase_item.entity.PurchaseItem;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

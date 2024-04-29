@@ -2,7 +2,7 @@ package com.pintor.member_module.domain.member.controller;
 
 import com.pintor.member_module.common.response.ResData;
 import com.pintor.member_module.common.response.SuccessCode;
-import com.pintor.member_module.common.service.MailService;
+import com.pintor.member_module.common.util.MailUtil;
 import com.pintor.member_module.domain.member.entity.Member;
 import com.pintor.member_module.domain.member.request.MemberPasswordUpdateRequest;
 import com.pintor.member_module.domain.member.request.MemberSignupRequest;
@@ -30,7 +30,7 @@ public class MemberController {
 
     private final MemberService memberService;
     private final AuthService authService;
-    private final MailService mailService;
+    private final MailUtil mailUtil;
 
     @PostMapping
     public ResponseEntity signup(@Valid @RequestBody MemberSignupRequest request, BindingResult bindingResult) {
@@ -39,7 +39,7 @@ public class MemberController {
 
         Member member = this.memberService.signup(request, bindingResult);
         String code = this.authService.saveMailToken(member.getId());
-        this.mailService.sendVerificationCode(member.getEmail(), code);
+        this.mailUtil.sendVerificationCode(member.getEmail(), code);
 
         ResData resData = ResData.of(
                 SuccessCode.SIGNUP,
@@ -88,7 +88,7 @@ public class MemberController {
         log.info("password reset request: {}", request);
 
         MemberPasswordResetResponse response = this.memberService.resetPassword(request, bindingResult);
-        this.mailService.sendTempPassword(response.getEmail(), response.getPassword());
+        this.mailUtil.sendTempPassword(response.getEmail(), response.getPassword());
 
         ResData resData = ResData.of(
                 SuccessCode.RESET_PASSWORD

@@ -3,7 +3,7 @@ package com.pintor.purchase_module.domain.purchase.service;
 import com.pintor.purchase_module.common.errors.exception.ApiResException;
 import com.pintor.purchase_module.common.response.FailCode;
 import com.pintor.purchase_module.common.response.ResData;
-import com.pintor.purchase_module.common.service.AddressService;
+import com.pintor.purchase_module.common.util.AddressUtil;
 import com.pintor.purchase_module.domain.cart_item.entity.CartItem;
 import com.pintor.purchase_module.domain.cart_item.service.CartItemService;
 import com.pintor.purchase_module.domain.member_module.member.entity.Member;
@@ -54,7 +54,7 @@ public class PurchaseService {
     private final CartItemService cartItemService;
     private final PurchaseItemService purchaseItemService;
     private final PurchaseLogService purchaseLogService;
-    private final AddressService addressService;
+    private final AddressUtil addressUtil;
     private final MemberService memberService;
     private final ProductService productService;
     private final StockService stockService;
@@ -132,7 +132,7 @@ public class PurchaseService {
             );
         }
 
-        if (!this.addressService.isValidAddress(request.getZoneCode(), request.getAddress())) {
+        if (!this.addressUtil.isValidAddress(request.getZoneCode(), request.getAddress())) {
 
             bindingResult.rejectValue("address", "invalid address", "invalid address");
 
@@ -238,7 +238,7 @@ public class PurchaseService {
             );
         }
 
-        if (!this.addressService.isValidAddress(request.getZoneCode(), request.getAddress())) {
+        if (!this.addressUtil.isValidAddress(request.getZoneCode(), request.getAddress())) {
 
             bindingResult.rejectValue("address", "invalid address", "invalid address");
 

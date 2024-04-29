@@ -1,10 +1,6 @@
 package com.pintor.product_module.common.filter;
 
 import com.pintor.product_module.common.util.JwtUtil;
-import com.pintor.product_module.domain.member_module.auth.entity.AuthToken;
-import com.pintor.product_module.domain.member_module.auth.repository.AuthTokenRepository;
-import com.pintor.product_module.domain.member_module.member.entity.Member;
-import com.pintor.product_module.domain.member_module.member.repository.MemberRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

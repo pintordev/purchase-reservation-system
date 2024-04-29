@@ -3,8 +3,8 @@ package com.pintor.member_module.domain.member.service;
 import com.pintor.member_module.common.errors.exception.ApiResException;
 import com.pintor.member_module.common.response.FailCode;
 import com.pintor.member_module.common.response.ResData;
-import com.pintor.member_module.common.service.AddressService;
-import com.pintor.member_module.common.service.EncryptService;
+import com.pintor.member_module.common.util.AddressUtil;
+import com.pintor.member_module.common.util.EncryptUtil;
 import com.pintor.member_module.domain.member.repository.MemberRepository;
 import com.pintor.member_module.domain.member.request.MemberPasswordUpdateRequest;
 import com.pintor.member_module.domain.member.request.MemberSignupRequest;
@@ -33,8 +33,12 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthTokenRepository authTokenRepository;
 
-    private final EncryptService encryptService;
-    private final AddressService addressService;
+    private final EncryptUtil encryptUtil;
+    private final AddressUtil addressUtil;
+
+    public long count() {
+        return this.memberRepository.count();
+    }
 
     @Transactional
     public Member signup(MemberSignupRequest request, BindingResult bindingResult) {
@@ -45,7 +49,7 @@ public class MemberService {
                 .role(request.isAdmin() ? MemberRole.ADMIN : MemberRole.USER)
                 .email(request.getEmail())
                 .name(request.getName())
-                .password(this.encryptService.encode(request.getPassword()))
+                .password(this.encryptUtil.encode(request.getPassword()))
                 .phoneNumber(request.getPhoneNumber())
                 .zoneCode(request.getZoneCode())
                 .address(request.getAddress())
@@ -97,7 +101,7 @@ public class MemberService {
             );
         }
 
-        if (!this.addressService.isValidAddress(request.getZoneCode(), request.getAddress())) {
+        if (!this.addressUtil.isValidAddress(request.getZoneCode(), request.getAddress())) {
 
             bindingResult.rejectValue("address", "invalid address", "invalid address");
 
@@ -217,7 +221,7 @@ public class MemberService {
             );
         }
 
-        if (request.getZoneCode() != null && !this.addressService.isValidAddress(request.getZoneCode(), request.getAddress())) {
+        if (request.getZoneCode() != null && !this.addressUtil.isValidAddress(request.getZoneCode(), request.getAddress())) {
 
             bindingResult.rejectValue("address", "invalid address", "invalid address");
 
@@ -240,7 +244,7 @@ public class MemberService {
         this.passwordUpdateValidate(request, bindingResult, member);
 
         member = member.toBuilder()
-                .password(this.encryptService.encode(request.getNewPassword()))
+                .password(this.encryptUtil.encode(request.getNewPassword()))
                 .build();
 
         this.memberRepository.save(member);
@@ -261,7 +265,7 @@ public class MemberService {
             );
         }
 
-        if (!this.encryptService.passwordMatches(request.getOldPassword(), member.getPassword())) {
+        if (!this.encryptUtil.passwordMatches(request.getOldPassword(), member.getPassword())) {
 
             bindingResult.rejectValue("oldPassword", "password not match", "passwords do not match");
 
@@ -299,7 +303,7 @@ public class MemberService {
 
         String tempPassword = this.generateTempPassword(16);
         member = member.toBuilder()
-                .password(this.encryptService.encode(tempPassword))
+                .password(this.encryptUtil.encode(tempPassword))
                 .build();
 
         this.memberRepository.save(member);
