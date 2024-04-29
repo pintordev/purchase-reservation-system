@@ -11,8 +11,10 @@ import com.pintor.purchase_reservation_system.domain.member_module.auth.entity.M
 import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.AuthTokenRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.LoginTokenRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.MailTokenRepository;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthLoginMailRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthLoginRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthVerifyMailRequest;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.response.AuthLoginResponse;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.repository.MemberRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.member.service.MemberService;
@@ -111,14 +113,7 @@ public class AuthService {
 
     @Transactional
     public Member login(AuthLoginRequest request, BindingResult bindingResult) {
-
-        Member member = this.loginValidate(request, bindingResult);
-
-//        String accessToken = this.jwtUtil.genAccessToken(member);
-//        String refreshToken = this.jwtUtil.genRefreshToken();
-//        this.saveAuthToken(member, refreshToken, accessToken);
-
-        return member;
+        return this.loginValidate(request, bindingResult);
     }
 
     private Member loginValidate(AuthLoginRequest request, BindingResult bindingResult) {
@@ -181,6 +176,58 @@ public class AuthService {
     }
 
     @Transactional
+    public String saveLoginToken(Long memberId) {
+
+        String code = this.generateToken(32);
+
+        LoginToken loginToken = LoginToken.builder()
+                .id(code)
+                .memberId(memberId)
+                .timeToLive(this.loginTokenExpiration)
+                .build();
+
+        this.loginTokenRepository.save(loginToken);
+
+        return code;
+    }
+
+    @Transactional
+    public AuthLoginResponse loginMail(AuthLoginMailRequest request, BindingResult bindingResult) {
+
+        this.loginMailValidate(request, bindingResult);
+
+        LoginToken loginToken = this.loginTokenRepository.findById(request.getCode())
+                .orElseThrow(() -> new ApiResException(
+                        ResData.of(
+                                FailCode.INVALID_LOGIN_TOKEN
+                        )
+                ));
+
+        Member member = this.memberService.getMemberById(loginToken.getMemberId());
+
+        String accessToken = this.jwtUtil.genAccessToken(member);
+        String refreshToken = this.jwtUtil.genRefreshToken();
+        this.saveAuthToken(member, refreshToken, accessToken);
+
+        return AuthLoginResponse.of(accessToken, refreshToken);
+    }
+
+    private void loginMailValidate(AuthLoginMailRequest request, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+
+            log.error("binding error: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.BINDING_ERROR,
+                            bindingResult
+                    )
+            );
+        }
+    }
+
+    @Transactional
     private void saveAuthToken(Member member, String refreshToken, String accessToken) {
 
         AuthToken authToken = AuthToken.builder()
@@ -233,21 +280,5 @@ public class AuthService {
                                 FailCode.INVALID_REFRESH_TOKEN
                         )
                 ));
-    }
-
-    @Transactional
-    public String saveLoginToken(Long memberId) {
-
-        String code = this.generateToken(32);
-
-        LoginToken loginToken = LoginToken.builder()
-                .id(code)
-                .memberId(memberId)
-                .timeToLive(this.loginTokenExpiration)
-                .build();
-
-        this.loginTokenRepository.save(loginToken);
-
-        return code;
     }
 }

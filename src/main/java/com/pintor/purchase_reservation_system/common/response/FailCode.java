@@ -18,6 +18,7 @@ public enum FailCode {
 
     // Auth Service Fail Code
     INVALID_MAIL_TOKEN(HttpStatus.BAD_REQUEST, "invalid mail token", "유효하지 않은 메일 토큰입니다"),
+    INVALID_LOGIN_TOKEN(HttpStatus.BAD_REQUEST, "invalid login token", "유효하지 않은 로그인 토큰입니다"),
 
     // Auth Fail Code
     EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "expired access token", "인증 토큰이 만료되었습니다"),
