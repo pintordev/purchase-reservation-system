@@ -1,6 +1,6 @@
 package com.pintor.product_module.common.config;
 
-import com.pintor.product_module.domain.product_module.product.service.ProductService;
+import com.pintor.product_module.domain.product.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;

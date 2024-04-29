@@ -1,6 +1,6 @@
 package com.pintor.purchase_module.common.service;
 
-import com.pintor.purchase_module.domain.purchase_module.purchase.service.PurchaseService;
+import com.pintor.purchase_module.domain.purchase.service.PurchaseService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
