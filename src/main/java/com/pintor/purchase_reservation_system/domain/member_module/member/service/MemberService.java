@@ -12,6 +12,7 @@ import com.pintor.purchase_reservation_system.domain.member_module.member.reques
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberPasswordUpdateRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberProfileUpdateRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberSignupRequest;
+import com.pintor.purchase_reservation_system.domain.member_module.member.response.MemberPasswordResetResponse;
 import com.pintor.purchase_reservation_system.domain.member_module.member.role.MemberRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -290,7 +291,7 @@ public class MemberService {
     }
 
     @Transactional
-    public Member resetPassword(MemberPasswordResetRequest request, BindingResult bindingResult) {
+    public MemberPasswordResetResponse resetPassword(MemberPasswordResetRequest request, BindingResult bindingResult) {
 
         this.resetPasswordValidate(bindingResult);
 
@@ -301,7 +302,10 @@ public class MemberService {
                 .password(this.encryptService.encode(tempPassword))
                 .build();
 
-        return this.memberRepository.save(member);
+        this.memberRepository.save(member);
+        this.authTokenRepository.deleteAllById(Collections.singleton(member.getId()));
+
+        return MemberPasswordResetResponse.of(member.getEmail(), tempPassword);
     }
 
     private void resetPasswordValidate(BindingResult bindingResult) {

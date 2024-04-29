@@ -3,7 +3,6 @@ package com.pintor.purchase_reservation_system.common.service;
 import com.pintor.purchase_reservation_system.common.errors.exception.ApiResException;
 import com.pintor.purchase_reservation_system.common.response.FailCode;
 import com.pintor.purchase_reservation_system.common.response.ResData;
-import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +46,7 @@ public class MailService {
     }
 
     @Async
-    public void sendTempPassword(Member member) {
+    public void sendTempPassword(String email, String password) {
         MimeMessage mimeMessage = this.javaMailSender.createMimeMessage();
         MimeMessageHelper helper = null;
         try {
@@ -55,10 +54,10 @@ public class MailService {
 
             String title = "PRS 임시비밀번호 발송 메일입니다";
             String content = new StringBuilder("아래 임시비밀번호로 로그인 해주세요<br>")
-                    .append(member.getPassword())
+                    .append(password)
                     .toString();
 
-            helper.setTo(member.getEmail());
+            helper.setTo(email);
             helper.setSubject(title);
             helper.setText(content, true);
 

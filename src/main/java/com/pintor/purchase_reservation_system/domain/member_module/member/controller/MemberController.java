@@ -9,6 +9,7 @@ import com.pintor.purchase_reservation_system.domain.member_module.member.reques
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberPasswordUpdateRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberProfileUpdateRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberSignupRequest;
+import com.pintor.purchase_reservation_system.domain.member_module.member.response.MemberPasswordResetResponse;
 import com.pintor.purchase_reservation_system.domain.member_module.member.response.MemberSignupResponse;
 import com.pintor.purchase_reservation_system.domain.member_module.member.service.MemberService;
 import jakarta.validation.Valid;
@@ -86,11 +87,11 @@ public class MemberController {
 
         log.info("password reset request: {}", request);
 
-        Member member = this.memberService.resetPassword(request, bindingResult);
-        this.mailService.sendTempPassword(member);
+        MemberPasswordResetResponse response = this.memberService.resetPassword(request, bindingResult);
+        this.mailService.sendTempPassword(response.getEmail(), response.getPassword());
 
         ResData resData = ResData.of(
-                SuccessCode.UPDATE_PASSWORD
+                SuccessCode.RESET_PASSWORD
         );
         return ResponseEntity
                 .status(resData.getStatus())
