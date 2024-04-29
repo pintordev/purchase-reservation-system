@@ -28,7 +28,7 @@ public class PurchaseLogBulkRepository {
                 purchaseList.size(),
                 (ps, purchase) -> {
                     ps.setLong(1, purchase.getId());
-                    ps.setLong(2, purchase.getMember().getId());
+                    ps.setLong(2, purchase.getMemberId());
                     ps.setString(3, after.name());
                     ps.setLong(4, purchase.getTotalPrice());
                     ps.setString(5, this.aesConverter.convertToDatabaseColumn(purchase.getPhoneNumber()));

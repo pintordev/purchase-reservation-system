@@ -1,6 +1,5 @@
 package com.pintor.purchase_module.domain.purchase_item.entity;
 
-import com.pintor.purchase_module.domain.product_module.product.entity.Product;
 import com.pintor.purchase_module.domain.purchase.entity.Purchase;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,8 +21,7 @@ public class PurchaseItem {
     @ManyToOne(fetch = FetchType.LAZY)
     private Purchase purchase;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Product product;
+    private Long productId;
 
     private String name;
 

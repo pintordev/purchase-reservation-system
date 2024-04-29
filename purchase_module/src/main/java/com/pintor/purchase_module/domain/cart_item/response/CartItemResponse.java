@@ -16,7 +16,7 @@ public class CartItemResponse {
     private final boolean selected;
 
     private CartItemResponse(CartItem cartItem) {
-        this.productId = cartItem.getProduct().getId();
+        this.productId = cartItem.getProductId();
         this.name = cartItem.getName();
         this.price = cartItem.getPrice();
         this.quantity = cartItem.getQuantity();

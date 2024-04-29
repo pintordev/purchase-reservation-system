@@ -1,7 +1,7 @@
 package com.pintor.purchase_module.domain.purchase_item.service;
 
-import com.pintor.purchase_module.domain.product_module.product.entity.Product;
 import com.pintor.purchase_module.domain.cart_item.entity.CartItem;
+import com.pintor.purchase_module.domain.cart_item.response.ProductResponse;
 import com.pintor.purchase_module.domain.purchase.entity.Purchase;
 import com.pintor.purchase_module.domain.purchase.request.PurchaseCreateUnitRequest;
 import com.pintor.purchase_module.domain.purchase_item.entity.PurchaseItem;
@@ -33,10 +33,10 @@ public class PurchaseItemService {
     }
 
     @Transactional
-    private PurchaseItem create(CartItem cartItem, Purchase purchase) {
+    protected PurchaseItem create(CartItem cartItem, Purchase purchase) {
         return PurchaseItem.builder()
                 .purchase(purchase)
-                .product(cartItem.getProduct())
+                .productId(cartItem.getProductId())
                 .name(cartItem.getName())
                 .price(cartItem.getPrice())
                 .quantity(cartItem.getQuantity())
@@ -47,7 +47,7 @@ public class PurchaseItemService {
     public void create(PurchaseCreateUnitRequest request, Purchase purchase, CartItem cartItem) {
         PurchaseItem purchaseItem = PurchaseItem.builder()
                 .purchase(purchase)
-                .product(cartItem.getProduct())
+                .productId(cartItem.getProductId())
                 .name(cartItem.getName())
                 .price(cartItem.getPrice())
                 .quantity(cartItem.getQuantity())
@@ -56,12 +56,16 @@ public class PurchaseItemService {
     }
 
     @Transactional
-    public void create(PurchaseCreateUnitRequest request, Purchase purchase, Product product) {
+    public void create(PurchaseCreateUnitRequest request, Purchase purchase, Long productId) {
+
+        ProductResponse response = null;
+        // TODO: product module에서 상품 정보를 가져오는 로직 추가
+
         PurchaseItem purchaseItem = PurchaseItem.builder()
                 .purchase(purchase)
-                .product(product)
-                .name(product.getName())
-                .price(product.getPrice())
+                .productId(response.getProductId())
+                .name(response.getName())
+                .price(response.getPrice())
                 .quantity(request.getQuantity())
                 .build();
         this.purchaseItemRepository.save(purchaseItem);

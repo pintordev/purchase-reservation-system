@@ -1,6 +1,5 @@
 package com.pintor.purchase_module.domain.cart_item.entity;
 
-import com.pintor.purchase_module.domain.product_module.product.entity.Product;
 import com.pintor.purchase_module.domain.cart.entity.Cart;
 import jakarta.persistence.*;
 import lombok.*;
@@ -22,8 +21,7 @@ public class CartItem {
     @ManyToOne(fetch = FetchType.LAZY)
     private Cart cart;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Product product;
+    private Long productId;
 
     private String name;
 

@@ -55,9 +55,6 @@ public class PurchaseService {
     private final PurchaseItemService purchaseItemService;
     private final PurchaseLogService purchaseLogService;
     private final AddressUtil addressUtil;
-    private final MemberService memberService;
-    private final ProductService productService;
-    private final StockService stockService;
 
     private final EntityManager entityManager;
 
@@ -89,7 +86,7 @@ public class PurchaseService {
                 .sum();
 
         Purchase purchase = Purchase.builder()
-                .member(cart.getMember())
+                .memberId(cart.getMemberId())
                 .status(PurchaseStatus.PURCHASED)
                 .totalPrice(totalPrice)
                 .phoneNumber(request.getPhoneNumber())
@@ -103,7 +100,8 @@ public class PurchaseService {
         this.purchaseItemService.createAll(cartItemList, purchase, request.getType());
         this.purchaseLogService.log(purchase);
         this.cartItemService.deleteAll(cartItemList, request.getType());
-        this.stockService.decreaseAll(cartItemList);
+        // this.stockService.decreaseAll(cartItemList);
+        // TODO: feign client로 변경
 
         return this.refresh(purchase);
     }
@@ -152,8 +150,6 @@ public class PurchaseService {
 
         this.createUnitValidate(request, bindingResult);
 
-        Member member = this.memberService.getMemberByEmail(user.getUsername());
-
         Integer totalPrice;
         Product product = null;
         CartItem cartItem = null;
@@ -166,7 +162,7 @@ public class PurchaseService {
         }
 
         Purchase purchase = Purchase.builder()
-                .member(member)
+                .memberId(user.getId())
                 .status(PurchaseStatus.PURCHASED)
                 .totalPrice(totalPrice)
                 .phoneNumber(request.getPhoneNumber())
@@ -184,7 +180,8 @@ public class PurchaseService {
             this.purchaseItemService.create(request, purchase, product);
         }
         this.purchaseLogService.log(purchase);
-        this.stockService.decrease(product, request.getQuantity());
+        // this.stockService.decrease(product, request.getQuantity());
+        // TODO: feign client로 변경
 
         return this.refresh(purchase);
     }
@@ -282,7 +279,8 @@ public class PurchaseService {
 
         // 반품완료 후 재고 반영
         List<PurchaseItem> purchaseItemList = this.purchaseItemService.getAllByPurchaseList(purchaseList);
-        this.stockService.increaseAll(purchaseItemList);
+        // this.stockService.increaseAll(purchaseItemList);
+        // TODO: feign client로 변경
 
         log.info("reverted stocks");
     }
@@ -299,9 +297,9 @@ public class PurchaseService {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sorts));
 
         if (status.equals("ALL")) {
-            return this.purchaseRepository.findAllByMember(member, pageable);
+            return this.purchaseRepository.findAllByMemberId(memberId, pageable);
         } else {
-            return this.purchaseRepository.findAllByMemberAndStatus(member, PurchaseStatus.valueOf(status), pageable);
+            return this.purchaseRepository.findAllByMemberIdAndStatus(memberId, PurchaseStatus.valueOf(status), pageable);
         }
     }
 
@@ -407,7 +405,8 @@ public class PurchaseService {
         this.purchaseRepository.save(purchase);
         this.purchaseLogService.log(purchase);
         List<PurchaseItem> purchaseItemList = this.purchaseItemService.getAllByPurchase(purchase);
-        this.stockService.increaseAll(purchaseItemList);
+        // this.stockService.increaseAll(purchaseItemList);
+        // TODO: feign client로 변경
     }
 
     private void cancelPurchaseValidate(Purchase purchase, User user) {

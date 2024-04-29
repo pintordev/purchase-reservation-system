@@ -2,9 +2,8 @@ package com.pintor.purchase_module.domain.purchase.entity;
 
 import com.pintor.purchase_module.common.converter.AesConverter;
 import com.pintor.purchase_module.common.entity.BaseEntity;
-import com.pintor.purchase_module.domain.member_module.member.entity.Member;
-import com.pintor.purchase_module.domain.purchase_item.entity.PurchaseItem;
 import com.pintor.purchase_module.domain.purchase.status.PurchaseStatus;
+import com.pintor.purchase_module.domain.purchase_item.entity.PurchaseItem;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -22,8 +21,7 @@ import java.util.List;
 })
 public class Purchase extends BaseEntity {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Member member;
+    private Long memberId;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "varchar(255)")

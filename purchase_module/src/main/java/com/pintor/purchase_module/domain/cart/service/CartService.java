@@ -1,7 +1,5 @@
 package com.pintor.purchase_module.domain.cart.service;
 
-import com.pintor.member_module.domain.member.entity.Member;
-import com.pintor.member_module.domain.member.service.MemberService;
 import com.pintor.purchase_module.domain.cart.entity.Cart;
 import com.pintor.purchase_module.domain.cart.repository.CartRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,27 +15,27 @@ import org.springframework.transaction.annotation.Transactional;
 public class CartService {
 
     private final CartRepository cartRepository;
-    private final MemberService memberService;
 
     public Cart getCart(User user) {
 
-        Member member = this.memberService.getMemberByEmail(user.getUsername());
+        // TODO: feign client로 member module 호출
+        Long memberId = null;
 
-        Cart cart = this.cartRepository.findByMember(member)
+        Cart cart = this.cartRepository.findByMemberId(memberId)
                 .orElse(null);
 
         if (cart == null) {
-            cart = this.createCart(member);
+            cart = this.createCart(memberId);
         }
 
         return cart;
     }
 
     @Transactional
-    protected Cart createCart(Member member) {
+    protected Cart createCart(Long memberId) {
 
         Cart cart = Cart.builder()
-                .member(member)
+                .memberId(memberId)
                 .build();
 
         return this.cartRepository.save(cart);

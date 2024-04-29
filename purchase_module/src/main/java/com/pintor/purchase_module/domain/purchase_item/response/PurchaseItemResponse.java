@@ -15,7 +15,7 @@ public class PurchaseItemResponse {
     private final Integer totalPrice;
 
     private PurchaseItemResponse(PurchaseItem purchaseItem) {
-        this.productId = purchaseItem.getProduct().getId();
+        this.productId = purchaseItem.getProductId();
         this.name = purchaseItem.getName();
         this.price = purchaseItem.getPrice();
         this.quantity = purchaseItem.getQuantity();

@@ -1,6 +1,5 @@
 package com.pintor.purchase_module.domain.cart.entity;
 
-import com.pintor.member_module.domain.member.entity.Member;
 import com.pintor.purchase_module.domain.cart_item.entity.CartItem;
 import jakarta.persistence.*;
 import lombok.*;
@@ -21,8 +20,7 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    private Member member;
+    private Long memberId;
 
     @OneToMany(mappedBy = "cart", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<CartItem> cartItemList;

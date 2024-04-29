@@ -1,7 +1,6 @@
 package com.pintor.purchase_module.domain.purchase.entity;
 
 import com.pintor.purchase_module.common.converter.AesConverter;
-import com.pintor.purchase_module.domain.member_module.member.entity.Member;
 import com.pintor.purchase_module.domain.purchase.status.PurchaseStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,8 +25,7 @@ public class PurchaseLog {
     @ManyToOne(fetch = FetchType.LAZY)
     private Purchase purchase;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Member member;
+    private Long memberId;
 
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "varchar(255)")

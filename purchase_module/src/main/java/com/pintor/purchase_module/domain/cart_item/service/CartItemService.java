@@ -3,14 +3,13 @@ package com.pintor.purchase_module.domain.cart_item.service;
 import com.pintor.purchase_module.common.errors.exception.ApiResException;
 import com.pintor.purchase_module.common.response.FailCode;
 import com.pintor.purchase_module.common.response.ResData;
-import com.pintor.purchase_module.domain.cart_item.entity.CartItem;
-import com.pintor.purchase_module.domain.cart_item.request.CartItemCreateRequest;
-import com.pintor.purchase_module.domain.cart_item.request.CartItemUpdateRequest;
-import com.pintor.purchase_module.domain.product_module.product.entity.Product;
-import com.pintor.purchase_module.domain.product_module.product.service.ProductService;
 import com.pintor.purchase_module.domain.cart.entity.Cart;
 import com.pintor.purchase_module.domain.cart.service.CartService;
+import com.pintor.purchase_module.domain.cart_item.entity.CartItem;
 import com.pintor.purchase_module.domain.cart_item.repository.CartItemRepository;
+import com.pintor.purchase_module.domain.cart_item.request.CartItemCreateRequest;
+import com.pintor.purchase_module.domain.cart_item.request.CartItemUpdateRequest;
+import com.pintor.purchase_module.domain.cart_item.response.ProductResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.User;
@@ -30,21 +29,22 @@ public class CartItemService {
     private final CartItemRepository cartItemRepository;
 
     private final CartService cartService;
-    private final ProductService productService;
 
     @Transactional
     public void create(CartItemCreateRequest request, BindingResult bindingResult, User user) {
 
         this.createValidate(bindingResult);
-        Product product = this.productService.getProductDetail(request.getProductId());
+
+        // TODO: feign client로 product module 호출
+        ProductResponse response = null;
 
         Cart cart = this.cartService.getCart(user);
 
         CartItem cartItem = CartItem.builder()
                 .cart(cart)
-                .product(product)
-                .name(product.getName())
-                .price(product.getPrice())
+                .productId(response.getProductId())
+                .name(response.getName())
+                .price(response.getPrice())
                 .quantity(request.getQuantity())
                 .build();
 
