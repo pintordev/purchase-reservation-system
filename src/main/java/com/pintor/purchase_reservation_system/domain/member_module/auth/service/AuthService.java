@@ -93,6 +93,8 @@ public class AuthService {
                         )
                 ));
 
+        this.mailTokenRepository.delete(mailToken);
+
         return mailToken.getMemberId();
     }
 
@@ -208,6 +210,8 @@ public class AuthService {
         String accessToken = this.jwtUtil.genAccessToken(member);
         String refreshToken = this.jwtUtil.genRefreshToken();
         this.saveAuthToken(member, refreshToken, accessToken);
+
+        this.loginTokenRepository.delete(loginToken);
 
         return AuthLoginResponse.of(accessToken, refreshToken);
     }
