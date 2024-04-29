@@ -8,6 +8,7 @@ import com.pintor.purchase_reservation_system.common.service.EncryptService;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.AuthTokenRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.repository.MemberRepository;
+import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberPasswordResetRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberPasswordUpdateRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberProfileUpdateRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.member.request.MemberSignupRequest;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 
+import java.security.SecureRandom;
 import java.util.Collections;
 
 @Slf4j
@@ -276,5 +278,53 @@ public class MemberService {
                     )
             );
         }
+    }
+
+    @Transactional
+    public Member resetPassword(MemberPasswordResetRequest request, BindingResult bindingResult) {
+
+        this.resetPasswordValidate(request, bindingResult);
+
+        Member member = this.memberRepository.findByEmailAndNameAndPhoneNumber(request.getEmail(), request.getName(), request.getPhoneNumber())
+                .orElseThrow(() -> new ApiResException(
+                        ResData.of(
+                                FailCode.MEMBER_NOT_FOUND
+                        )
+                ));
+
+        String tempPassword = this.generateTempPassword(16);
+        member = member.toBuilder()
+                .password(this.encryptService.encode(tempPassword))
+                .build();
+
+        this.memberRepository.save(member);
+
+        return member;
+    }
+
+    private void resetPasswordValidate(MemberPasswordResetRequest request, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+
+            log.error("binding error: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.BINDING_ERROR,
+                            bindingResult
+                    )
+            );
+        }
+    }
+
+    private String generateTempPassword(int len) {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < len; i++) {
+            int index = random.nextInt(characters.length());
+            char randomChar = characters.charAt(index);
+            sb.append(randomChar);
+        }
+        return sb.toString();
     }
 }
