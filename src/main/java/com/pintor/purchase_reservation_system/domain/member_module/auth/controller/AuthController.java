@@ -2,10 +2,13 @@ package com.pintor.purchase_reservation_system.domain.member_module.auth.control
 
 import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.response.SuccessCode;
+import com.pintor.purchase_reservation_system.common.service.MailService;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthLoginMailRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthLoginRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthVerifyMailRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.response.AuthLoginResponse;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.service.AuthService;
+import com.pintor.purchase_reservation_system.domain.member_module.member.entity.Member;
 import com.pintor.purchase_reservation_system.domain.member_module.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,6 +33,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final MemberService memberService;
+    private final MailService mailService;
 
     @PostMapping(value = "/verify/mail", consumes = MediaType.ALL_VALUE)
     public ResponseEntity verifyMail(@Valid @RequestBody AuthVerifyMailRequest request, BindingResult bindingResult) {
@@ -46,17 +50,34 @@ public class AuthController {
     }
 
     @PostMapping(value = "/login")
-    public ResponseEntity login(@Valid @RequestBody AuthLoginRequest request, BindingResult bindingResult,
-                                HttpServletResponse response) {
+    public ResponseEntity login(@Valid @RequestBody AuthLoginRequest request, BindingResult bindingResult) {
 
         log.info("login request: {}", request);
 
-        AuthLoginResponse authLoginResponse = this.authService.login(request, bindingResult);
+        Member member = this.authService.login(request, bindingResult);
+        String code = this.authService.saveLoginToken(member.getId());
+        this.mailService.sendLoginCode(member.getEmail(), code);
+
+        ResData resData = ResData.of(
+                SuccessCode.LOGIN
+        );
+        return ResponseEntity
+                .status(resData.getStatus())
+                .body(resData);
+    }
+
+    @PostMapping(value = "/login/mail")
+    public ResponseEntity loginMail(@Valid @RequestBody AuthLoginMailRequest request, BindingResult bindingResult,
+                                    HttpServletResponse response) {
+
+        log.info("login mail request: {}", request);
+
+        AuthLoginResponse authLoginResponse = this.authService.loginMail(request, bindingResult);
 
         response.setHeader("Authorization", authLoginResponse.getAccessToken());
         response.setHeader("Refresh", authLoginResponse.getRefreshToken());
         ResData resData = ResData.of(
-                SuccessCode.LOGIN
+                SuccessCode.LOGIN_MAIL
         );
         return ResponseEntity
                 .status(resData.getStatus())

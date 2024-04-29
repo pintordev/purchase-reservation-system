@@ -6,9 +6,12 @@ import com.pintor.purchase_reservation_system.common.response.ResData;
 import com.pintor.purchase_reservation_system.common.service.EncryptService;
 import com.pintor.purchase_reservation_system.common.util.JwtUtil;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.entity.AuthToken;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.entity.LoginToken;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.entity.MailToken;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.AuthTokenRepository;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.LoginTokenRepository;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.repository.MailTokenRepository;
+import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthLoginMailRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthLoginRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.request.AuthVerifyMailRequest;
 import com.pintor.purchase_reservation_system.domain.member_module.auth.response.AuthLoginResponse;
@@ -38,9 +41,13 @@ public class AuthService {
     @Value("${jwt.expiration.refresh_token}")
     private Long authTokenExpiration;
 
+    @Value("${login.expiration}")
+    private Long loginTokenExpiration;
+
     private final MailTokenRepository mailTokenRepository;
     private final MemberRepository memberRepository;
     private final AuthTokenRepository authTokenRepository;
+    private final LoginTokenRepository loginTokenRepository;
 
     private final MemberService memberService;
 
@@ -86,6 +93,8 @@ public class AuthService {
                         )
                 ));
 
+        this.mailTokenRepository.delete(mailToken);
+
         return mailToken.getMemberId();
     }
 
@@ -105,15 +114,8 @@ public class AuthService {
     }
 
     @Transactional
-    public AuthLoginResponse login(AuthLoginRequest request, BindingResult bindingResult) {
-
-        Member member = this.loginValidate(request, bindingResult);
-
-        String accessToken = this.jwtUtil.genAccessToken(member);
-        String refreshToken = this.jwtUtil.genRefreshToken();
-        this.saveAuthToken(member, refreshToken, accessToken);
-
-        return AuthLoginResponse.of(accessToken, refreshToken);
+    public Member login(AuthLoginRequest request, BindingResult bindingResult) {
+        return this.loginValidate(request, bindingResult);
     }
 
     private Member loginValidate(AuthLoginRequest request, BindingResult bindingResult) {
@@ -173,6 +175,60 @@ public class AuthService {
         }
 
         return member;
+    }
+
+    @Transactional
+    public String saveLoginToken(Long memberId) {
+
+        String code = this.generateToken(32);
+
+        LoginToken loginToken = LoginToken.builder()
+                .id(code)
+                .memberId(memberId)
+                .timeToLive(this.loginTokenExpiration)
+                .build();
+
+        this.loginTokenRepository.save(loginToken);
+
+        return code;
+    }
+
+    @Transactional
+    public AuthLoginResponse loginMail(AuthLoginMailRequest request, BindingResult bindingResult) {
+
+        this.loginMailValidate(request, bindingResult);
+
+        LoginToken loginToken = this.loginTokenRepository.findById(request.getCode())
+                .orElseThrow(() -> new ApiResException(
+                        ResData.of(
+                                FailCode.INVALID_LOGIN_TOKEN
+                        )
+                ));
+
+        Member member = this.memberService.getMemberById(loginToken.getMemberId());
+
+        String accessToken = this.jwtUtil.genAccessToken(member);
+        String refreshToken = this.jwtUtil.genRefreshToken();
+        this.saveAuthToken(member, refreshToken, accessToken);
+
+        this.loginTokenRepository.delete(loginToken);
+
+        return AuthLoginResponse.of(accessToken, refreshToken);
+    }
+
+    private void loginMailValidate(AuthLoginMailRequest request, BindingResult bindingResult) {
+
+        if (bindingResult.hasErrors()) {
+
+            log.error("binding error: {}", bindingResult);
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.BINDING_ERROR,
+                            bindingResult
+                    )
+            );
+        }
     }
 
     @Transactional
