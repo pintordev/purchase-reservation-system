@@ -5,18 +5,17 @@ import com.pintor.purchase_module.common.principal.MemberPrincipal;
 import com.pintor.purchase_module.common.response.FailCode;
 import com.pintor.purchase_module.common.response.ResData;
 import com.pintor.purchase_module.common.util.AddressUtil;
-import com.pintor.purchase_module.domain.cart_item.entity.CartItem;
-import com.pintor.purchase_module.domain.cart_item.service.CartItemService;
 import com.pintor.purchase_module.domain.cart.entity.Cart;
 import com.pintor.purchase_module.domain.cart.service.CartService;
+import com.pintor.purchase_module.domain.cart_item.entity.CartItem;
+import com.pintor.purchase_module.domain.cart_item.service.CartItemService;
 import com.pintor.purchase_module.domain.purchase.entity.Purchase;
 import com.pintor.purchase_module.domain.purchase.repository.PurchaseBulkRepository;
 import com.pintor.purchase_module.domain.purchase.repository.PurchaseRepository;
 import com.pintor.purchase_module.domain.purchase.request.PurchaseCreateRequest;
+import com.pintor.purchase_module.domain.purchase.status.PurchaseStatus;
 import com.pintor.purchase_module.domain.purchase_item.entity.PurchaseItem;
 import com.pintor.purchase_module.domain.purchase_item.service.PurchaseItemService;
-import com.pintor.purchase_module.domain.purchase.request.PurchaseCreateUnitRequest;
-import com.pintor.purchase_module.domain.purchase.status.PurchaseStatus;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -140,110 +139,110 @@ public class PurchaseService {
         }
     }
 
-    @Transactional
-    public Purchase createUnit(PurchaseCreateUnitRequest request, BindingResult bindingResult, MemberPrincipal principal) {
-
-        this.createUnitValidate(request, bindingResult);
-
-        Integer totalPrice;
-        Product product = null;
-        CartItem cartItem = null;
-        if (request.getType().equals("product")) {
-            product = this.productService.getProductDetail(request.getProductId());
-            totalPrice = product.getPrice() * request.getQuantity();
-        } else {
-            cartItem = this.cartItemService.getCartItemById(request.getCartItemId());
-            totalPrice = cartItem.getPrice() * cartItem.getQuantity();
-        }
-
-        Purchase purchase = Purchase.builder()
-                .memberId(principal.getId())
-                .status(PurchaseStatus.PURCHASED)
-                .totalPrice(totalPrice)
-                .phoneNumber(request.getPhoneNumber())
-                .zoneCode(request.getZoneCode())
-                .address(request.getAddress())
-                .subAddress(request.getSubAddress() == null ? "" : request.getSubAddress())
-                .build();
-
-        this.purchaseRepository.save(purchase);
-
-        if (cartItem != null) {
-            this.purchaseItemService.create(request, purchase, cartItem);
-            this.cartItemService.delete(request.getCartItemId(), principal);
-        } else {
-            this.purchaseItemService.create(request, purchase, product);
-        }
-        this.purchaseLogService.log(purchase);
-        // this.stockService.decrease(product, request.getQuantity());
-        // TODO: feign client로 변경
-
-        return this.refresh(purchase);
-    }
-
-    private void createUnitValidate(PurchaseCreateUnitRequest request, BindingResult bindingResult) {
-
-        if (bindingResult.hasErrors()) {
-
-            throw new ApiResException(
-                    ResData.of(
-                            FailCode.BINDING_ERROR,
-                            bindingResult
-                    )
-            );
-        }
-
-        if (!request.getType().equals("product") && !request.getType().equals("cartItem")) {
-
-            bindingResult.rejectValue("type", "invalid purchase type", "purchase type must be product or cartItem");
-
-            throw new ApiResException(
-                    ResData.of(
-                            FailCode.INVALID_PURCHASE_TYPE,
-                            bindingResult
-                    )
-            );
-        }
-
-        if (request.getType().equals("product") && (request.getProductId() == null || request.getQuantity() == null)) {
-
-            bindingResult.rejectValue("productId", "product id is required", "product id is required");
-            bindingResult.rejectValue("quantity", "quantity is required", "quantity is required");
-
-            throw new ApiResException(
-                    ResData.of(
-                            FailCode.PRODUCT_ID_AND_QUANTITY_REQUIRED,
-                            bindingResult
-                    )
-            );
-        }
-
-        if (request.getType().equals("cartItem") && request.getCartItemId() == null) {
-
-            bindingResult.rejectValue("cartItemId", "cart item id is required", "cart item id is required");
-
-            throw new ApiResException(
-                    ResData.of(
-                            FailCode.CART_ITEM_ID_REQUIRED,
-                            bindingResult
-                    )
-            );
-        }
-
-        if (!this.addressUtil.isValidAddress(request.getZoneCode(), request.getAddress())) {
-
-            bindingResult.rejectValue("address", "invalid address", "invalid address");
-
-            log.error("invalid address: {}", bindingResult);
-
-            throw new ApiResException(
-                    ResData.of(
-                            FailCode.INVALID_ADDRESS,
-                            bindingResult
-                    )
-            );
-        }
-    }
+//    @Transactional
+//    public Purchase createUnit(PurchaseCreateUnitRequest request, BindingResult bindingResult, MemberPrincipal principal) {
+//
+//        this.createUnitValidate(request, bindingResult);
+//
+//        Integer totalPrice;
+//        Product product = null;
+//        CartItem cartItem = null;
+//        if (request.getType().equals("product")) {
+//            product = this.productService.getProductDetail(request.getProductId());
+//            totalPrice = product.getPrice() * request.getQuantity();
+//        } else {
+//            cartItem = this.cartItemService.getCartItemById(request.getCartItemId());
+//            totalPrice = cartItem.getPrice() * cartItem.getQuantity();
+//        }
+//
+//        Purchase purchase = Purchase.builder()
+//                .memberId(principal.getId())
+//                .status(PurchaseStatus.PURCHASED)
+//                .totalPrice(totalPrice)
+//                .phoneNumber(request.getPhoneNumber())
+//                .zoneCode(request.getZoneCode())
+//                .address(request.getAddress())
+//                .subAddress(request.getSubAddress() == null ? "" : request.getSubAddress())
+//                .build();
+//
+//        this.purchaseRepository.save(purchase);
+//
+//        if (cartItem != null) {
+//            this.purchaseItemService.create(request, purchase, cartItem);
+//            this.cartItemService.delete(request.getCartItemId(), principal);
+//        } else {
+//            this.purchaseItemService.create(request, purchase, product);
+//        }
+//        this.purchaseLogService.log(purchase);
+//        // this.stockService.decrease(product, request.getQuantity());
+//        // TODO: feign client로 변경
+//
+//        return this.refresh(purchase);
+//    }
+//
+//    private void createUnitValidate(PurchaseCreateUnitRequest request, BindingResult bindingResult) {
+//
+//        if (bindingResult.hasErrors()) {
+//
+//            throw new ApiResException(
+//                    ResData.of(
+//                            FailCode.BINDING_ERROR,
+//                            bindingResult
+//                    )
+//            );
+//        }
+//
+//        if (!request.getType().equals("product") && !request.getType().equals("cartItem")) {
+//
+//            bindingResult.rejectValue("type", "invalid purchase type", "purchase type must be product or cartItem");
+//
+//            throw new ApiResException(
+//                    ResData.of(
+//                            FailCode.INVALID_PURCHASE_TYPE,
+//                            bindingResult
+//                    )
+//            );
+//        }
+//
+//        if (request.getType().equals("product") && (request.getProductId() == null || request.getQuantity() == null)) {
+//
+//            bindingResult.rejectValue("productId", "product id is required", "product id is required");
+//            bindingResult.rejectValue("quantity", "quantity is required", "quantity is required");
+//
+//            throw new ApiResException(
+//                    ResData.of(
+//                            FailCode.PRODUCT_ID_AND_QUANTITY_REQUIRED,
+//                            bindingResult
+//                    )
+//            );
+//        }
+//
+//        if (request.getType().equals("cartItem") && request.getCartItemId() == null) {
+//
+//            bindingResult.rejectValue("cartItemId", "cart item id is required", "cart item id is required");
+//
+//            throw new ApiResException(
+//                    ResData.of(
+//                            FailCode.CART_ITEM_ID_REQUIRED,
+//                            bindingResult
+//                    )
+//            );
+//        }
+//
+//        if (!this.addressUtil.isValidAddress(request.getZoneCode(), request.getAddress())) {
+//
+//            bindingResult.rejectValue("address", "invalid address", "invalid address");
+//
+//            log.error("invalid address: {}", bindingResult);
+//
+//            throw new ApiResException(
+//                    ResData.of(
+//                            FailCode.INVALID_ADDRESS,
+//                            bindingResult
+//                    )
+//            );
+//        }
+//    }
 
     @Transactional
     public void changeStatus() {

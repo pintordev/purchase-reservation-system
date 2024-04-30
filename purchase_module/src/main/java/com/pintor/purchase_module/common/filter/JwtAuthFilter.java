@@ -1,7 +1,7 @@
 package com.pintor.purchase_module.common.filter;
 
+import com.pintor.purchase_module.api.member_module.client.MemberClient;
 import com.pintor.purchase_module.common.principal.MemberPrincipal;
-import com.pintor.purchase_module.common.principal.MemberPrincipalResponse;
 import com.pintor.purchase_module.common.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,6 +20,7 @@ import java.io.IOException;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final MemberClient memberClient;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -34,9 +35,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             if (id < 0) {
                 request.setAttribute("token_validation_level", id);
             } else {
-                MemberPrincipalResponse principalResponse = null;
-                // TODO: feign client call to member module
-                MemberPrincipal principal = principalResponse.toPrincipal();
+
+                MemberPrincipal principal = this.memberClient.getMemberPrincipal(id, bearerToken).toPrincipal();
 
                 if (principal == null) {
                     request.setAttribute("token_validation_level", -3L);

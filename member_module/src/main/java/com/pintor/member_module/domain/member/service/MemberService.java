@@ -10,6 +10,7 @@ import com.pintor.member_module.domain.member.repository.MemberRepository;
 import com.pintor.member_module.domain.member.request.MemberPasswordUpdateRequest;
 import com.pintor.member_module.domain.member.request.MemberSignupRequest;
 import com.pintor.member_module.domain.member.response.MemberPasswordResetResponse;
+import com.pintor.member_module.domain.member.response.MemberPrincipalResponse;
 import com.pintor.member_module.domain.member.role.MemberRole;
 import com.pintor.member_module.domain.auth.repository.AuthTokenRepository;
 import com.pintor.member_module.domain.member.entity.Member;
@@ -337,5 +338,10 @@ public class MemberService {
             sb.append(randomChar);
         }
         return sb.toString();
+    }
+
+    public MemberPrincipalResponse getMemberPrincipal(Long id) {
+        Member member = this.getMemberById(id);
+        return MemberPrincipalResponse.of(member.getId(), member.getEmail(), member.getPassword(), member.getRole().name());
     }
 }

@@ -2,7 +2,6 @@ package com.pintor.product_module.common.config;
 
 import com.pintor.product_module.common.errors.exception_hanlder.ApiAuthenticationExceptionHandler;
 import com.pintor.product_module.common.errors.exception_hanlder.ApiAuthorizationExceptionHandler;
-import com.pintor.product_module.common.filter.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,14 +10,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
     private final ApiAuthenticationExceptionHandler apiAuthenticationExceptionHandler;
     private final ApiAuthorizationExceptionHandler apiAuthorizationExceptionHandler;
 
@@ -28,12 +25,6 @@ public class SecurityConfig {
         http
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers(HttpMethod.POST, "/api/members").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/members/password").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/verify/mail").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/login/mail").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/auth/refresh").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/products/*").permitAll()
                         .anyRequest().authenticated()
@@ -56,10 +47,6 @@ public class SecurityConfig {
                 )
                 .sessionManagement(sessionManagement -> sessionManagement
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                .addFilterBefore(
-                        this.jwtAuthFilter,
-                        UsernamePasswordAuthenticationFilter.class
                 )
         ;
 

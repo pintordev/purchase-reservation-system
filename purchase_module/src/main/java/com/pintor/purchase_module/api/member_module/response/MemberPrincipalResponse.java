@@ -1,9 +1,12 @@
-package com.pintor.purchase_module.common.principal;
+package com.pintor.purchase_module.api.member_module.response;
 
+import com.pintor.purchase_module.common.principal.MemberPrincipal;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 @AllArgsConstructor
 public class MemberPrincipalResponse {
 
@@ -11,10 +14,6 @@ public class MemberPrincipalResponse {
     private String email;
     private String password;
     private String role;
-
-    public MemberPrincipalResponse of(Long id, String email, String password, String role) {
-        return new MemberPrincipalResponse(id, email, password, role);
-    }
 
     public MemberPrincipal toPrincipal() {
         return new MemberPrincipal(this.id, this.email, this.password, this.role);
