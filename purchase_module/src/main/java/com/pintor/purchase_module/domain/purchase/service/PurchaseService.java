@@ -1,16 +1,12 @@
 package com.pintor.purchase_module.domain.purchase.service;
 
 import com.pintor.purchase_module.common.errors.exception.ApiResException;
+import com.pintor.purchase_module.common.principal.MemberPrincipal;
 import com.pintor.purchase_module.common.response.FailCode;
 import com.pintor.purchase_module.common.response.ResData;
 import com.pintor.purchase_module.common.util.AddressUtil;
 import com.pintor.purchase_module.domain.cart_item.entity.CartItem;
 import com.pintor.purchase_module.domain.cart_item.service.CartItemService;
-import com.pintor.purchase_module.domain.member_module.member.entity.Member;
-import com.pintor.purchase_module.domain.member_module.member.service.MemberService;
-import com.pintor.purchase_module.domain.product_module.product.entity.Product;
-import com.pintor.purchase_module.domain.product_module.product.service.ProductService;
-import com.pintor.purchase_module.domain.product_module.stock.service.StockService;
 import com.pintor.purchase_module.domain.cart.entity.Cart;
 import com.pintor.purchase_module.domain.cart.service.CartService;
 import com.pintor.purchase_module.domain.purchase.entity.Purchase;
@@ -28,7 +24,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -75,18 +70,18 @@ public class PurchaseService {
     }
 
     @Transactional
-    public Purchase create(PurchaseCreateRequest request, BindingResult bindingResult, User user) {
+    public Purchase create(PurchaseCreateRequest request, BindingResult bindingResult, MemberPrincipal principal) {
 
         this.createValidate(request, bindingResult);
 
-        Cart cart = this.cartService.getCart(user);
+        Cart cart = this.cartService.getCart(principal);
         List<CartItem> cartItemList = this.cartItemService.getAllByCart(cart);
         int totalPrice = cartItemList.stream()
                 .mapToInt(cartItem -> cartItem.getPrice() * cartItem.getQuantity())
                 .sum();
 
         Purchase purchase = Purchase.builder()
-                .memberId(cart.getMemberId())
+                .memberId(principal.getId())
                 .status(PurchaseStatus.PURCHASED)
                 .totalPrice(totalPrice)
                 .phoneNumber(request.getPhoneNumber())
@@ -146,7 +141,7 @@ public class PurchaseService {
     }
 
     @Transactional
-    public Purchase createUnit(PurchaseCreateUnitRequest request, BindingResult bindingResult, User user) {
+    public Purchase createUnit(PurchaseCreateUnitRequest request, BindingResult bindingResult, MemberPrincipal principal) {
 
         this.createUnitValidate(request, bindingResult);
 
@@ -162,7 +157,7 @@ public class PurchaseService {
         }
 
         Purchase purchase = Purchase.builder()
-                .memberId(user.getId())
+                .memberId(principal.getId())
                 .status(PurchaseStatus.PURCHASED)
                 .totalPrice(totalPrice)
                 .phoneNumber(request.getPhoneNumber())
@@ -175,7 +170,7 @@ public class PurchaseService {
 
         if (cartItem != null) {
             this.purchaseItemService.create(request, purchase, cartItem);
-            this.cartItemService.delete(request.getCartItemId());
+            this.cartItemService.delete(request.getCartItemId(), principal);
         } else {
             this.purchaseItemService.create(request, purchase, product);
         }
@@ -285,11 +280,9 @@ public class PurchaseService {
         log.info("reverted stocks");
     }
 
-    public Page<Purchase> getPurchaseList(int page, int size, String sort, String dir, String status, User user) {
+    public Page<Purchase> getPurchaseList(int page, int size, String sort, String dir, String status, MemberPrincipal principal) {
 
         this.getPurchaseListValidate(page, size, sort, dir, status);
-
-        Member member = this.memberService.getMemberByEmail(user.getUsername());
 
         List<Sort.Order> sorts = new ArrayList<>();
         sorts.add(new Sort.Order(Sort.Direction.fromString(dir), sort));
@@ -297,9 +290,9 @@ public class PurchaseService {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sorts));
 
         if (status.equals("ALL")) {
-            return this.purchaseRepository.findAllByMemberId(memberId, pageable);
+            return this.purchaseRepository.findAllByMemberId(principal.getId(), pageable);
         } else {
-            return this.purchaseRepository.findAllByMemberIdAndStatus(memberId, PurchaseStatus.valueOf(status), pageable);
+            return this.purchaseRepository.findAllByMemberIdAndStatus(principal.getId(), PurchaseStatus.valueOf(status), pageable);
         }
     }
 
@@ -368,19 +361,19 @@ public class PurchaseService {
         }
     }
 
-    public Purchase getPurchaseDetail(Long id, User user) {
+    public Purchase getPurchaseDetail(Long id, MemberPrincipal principal) {
         Purchase purchase = this.getPurchaseById(id);
-        this.getPurchaseDetailValidate(purchase, user);
+        this.getPurchaseDetailValidate(purchase.getMemberId(), principal);
         return purchase;
     }
 
-    private void getPurchaseDetailValidate(Purchase purchase, User user) {
+    private void getPurchaseDetailValidate(Long memberId, MemberPrincipal principal) {
 
         BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "purchaseDetail");
 
-        if (!purchase.getMember().getEmail().equals(user.getUsername())) {
+        if (memberId != principal.getId()) {
 
-            bindingResult.rejectValue("id", "forbidden", "forbidden access to purchase that does not belong to user");
+            bindingResult.rejectValue("id", "forbidden", "forbidden access to purchase that does not belong to member");
 
             throw new ApiResException(
                     ResData.of(
@@ -392,11 +385,11 @@ public class PurchaseService {
     }
 
     @Transactional
-    public void cancelPurchase(Long id, User user) {
+    public void cancelPurchase(Long id, MemberPrincipal principal) {
 
         Purchase purchase = this.getPurchaseById(id);
 
-        this.cancelPurchaseValidate(purchase, user);
+        this.cancelPurchaseValidate(purchase, principal);
 
         purchase = purchase.toBuilder()
                 .status(PurchaseStatus.CANCELLED)
@@ -409,13 +402,13 @@ public class PurchaseService {
         // TODO: feign client로 변경
     }
 
-    private void cancelPurchaseValidate(Purchase purchase, User user) {
+    private void cancelPurchaseValidate(Purchase purchase, MemberPrincipal principal) {
 
         BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "cancelPurchase");
 
-        if (!purchase.getMember().getEmail().equals(user.getUsername())) {
+        if (purchase.getMemberId() != principal.getId()) {
 
-            bindingResult.rejectValue("id", "forbidden", "forbidden access to purchase that does not belong to user");
+            bindingResult.rejectValue("id", "forbidden", "forbidden access to purchase that does not belong to member");
 
             throw new ApiResException(
                     ResData.of(
@@ -439,11 +432,11 @@ public class PurchaseService {
     }
 
     @Transactional
-    public void returnPurchase(Long id, User user) {
+    public void returnPurchase(Long id, MemberPrincipal principal) {
 
         Purchase purchase = this.getPurchaseById(id);
 
-        this.returnPurchaseValidate(purchase, user);
+        this.returnPurchaseValidate(purchase, principal);
 
         purchase = purchase.toBuilder()
                 .status(PurchaseStatus.ON_RETURN)
@@ -453,13 +446,13 @@ public class PurchaseService {
         this.purchaseLogService.log(purchase);
     }
 
-    private void returnPurchaseValidate(Purchase purchase, User user) {
+    private void returnPurchaseValidate(Purchase purchase, MemberPrincipal principal) {
 
         BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "returnPurchase");
 
-        if (!purchase.getMember().getEmail().equals(user.getUsername())) {
+        if (purchase.getMemberId() != principal.getId()) {
 
-            bindingResult.rejectValue("id", "forbidden", "forbidden access to purchase that does not belong to user");
+            bindingResult.rejectValue("id", "forbidden", "forbidden access to purchase that does not belong to member");
 
             throw new ApiResException(
                     ResData.of(

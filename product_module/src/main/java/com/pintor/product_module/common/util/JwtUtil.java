@@ -36,23 +36,6 @@ public class JwtUtil {
         return this.secretKey;
     }
 
-    public String genAccessToken(Member member) {
-        Claims claims = Jwts.claims()
-                .add("id", member.getId())
-                .add("email", member.getEmail())
-                .add("role", member.getRole().name())
-                .build();
-
-        long now = System.currentTimeMillis();
-
-        return Jwts.builder()
-                .claims(claims)
-                .issuedAt(new Date(now))
-                .expiration(new Date(now + 1000 * this.accessTokenExpiration))
-                .signWith(this.getSecretKey(), SignatureAlgorithm.HS512)
-                .compact();
-    }
-
     public String genRefreshToken() {
         Claims claims = Jwts.claims().build();
 

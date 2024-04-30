@@ -27,7 +27,7 @@ public class PurchaseLogService {
 
         PurchaseLog purchaseLog = PurchaseLog.builder()
                 .purchase(purchase)
-                .member(purchase.getMember())
+                .memberId(purchase.getMemberId())
                 .status(purchase.getStatus())
                 .totalPrice(purchase.getTotalPrice())
                 .phoneNumber(purchase.getPhoneNumber())

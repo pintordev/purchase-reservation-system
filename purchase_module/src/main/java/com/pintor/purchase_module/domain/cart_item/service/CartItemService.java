@@ -1,6 +1,7 @@
 package com.pintor.purchase_module.domain.cart_item.service;
 
 import com.pintor.purchase_module.common.errors.exception.ApiResException;
+import com.pintor.purchase_module.common.principal.MemberPrincipal;
 import com.pintor.purchase_module.common.response.FailCode;
 import com.pintor.purchase_module.common.response.ResData;
 import com.pintor.purchase_module.domain.cart.entity.Cart;
@@ -12,11 +13,12 @@ import com.pintor.purchase_module.domain.cart_item.request.CartItemUpdateRequest
 import com.pintor.purchase_module.domain.cart_item.response.ProductResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.MapBindingResult;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,14 +33,14 @@ public class CartItemService {
     private final CartService cartService;
 
     @Transactional
-    public void create(CartItemCreateRequest request, BindingResult bindingResult, User user) {
+    public void create(CartItemCreateRequest request, BindingResult bindingResult, MemberPrincipal principal) {
 
         this.createValidate(bindingResult);
 
         // TODO: feign client로 product module 호출
         ProductResponse response = null;
 
-        Cart cart = this.cartService.getCart(user);
+        Cart cart = this.cartService.getCart(principal);
 
         CartItem cartItem = CartItem.builder()
                 .cart(cart)
@@ -67,11 +69,11 @@ public class CartItemService {
     }
 
     @Transactional
-    public void update(Long id, CartItemUpdateRequest request, BindingResult bindingResult) {
-
-        this.updateValidate(bindingResult);
+    public void update(Long id, CartItemUpdateRequest request, BindingResult bindingResult, MemberPrincipal principal) {
 
         CartItem cartItem = this.getCartItem(id);
+
+        this.updateValidate(cartItem.getCart().getMemberId(), bindingResult, principal);
 
         cartItem = cartItem.toBuilder()
                 .quantity(request.getQuantity() != null ? request.getQuantity() : cartItem.getQuantity())
@@ -81,7 +83,7 @@ public class CartItemService {
         this.cartItemRepository.save(cartItem);
     }
 
-    private void updateValidate(BindingResult bindingResult) {
+    private void updateValidate(Long memberId, BindingResult bindingResult, MemberPrincipal principal) {
 
         if (bindingResult.hasErrors()) {
 
@@ -90,6 +92,18 @@ public class CartItemService {
             throw new ApiResException(
                     ResData.of(
                             FailCode.BINDING_ERROR,
+                            bindingResult
+                    )
+            );
+        }
+
+        if (memberId != principal.getId()) {
+
+            bindingResult.rejectValue("id", "forbidden", "forbidden access to cart item that does not belong to member");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.FORBIDDEN,
                             bindingResult
                     )
             );
@@ -106,9 +120,27 @@ public class CartItemService {
     }
 
     @Transactional
-    public void delete(Long id) {
+    public void delete(Long id, MemberPrincipal principal) {
         CartItem cartItem = this.getCartItem(id);
+        this.deleteValidate(cartItem.getCart().getMemberId(), principal);
         this.cartItemRepository.delete(cartItem);
+    }
+
+    private void deleteValidate(Long memberId, MemberPrincipal principal) {
+
+        BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "deleteCartItem");
+
+        if (memberId != principal.getId()) {
+
+            bindingResult.rejectValue("id", "forbidden", "forbidden access to cart item that does not belong to member");
+
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.FORBIDDEN,
+                            bindingResult
+                    )
+            );
+        }
     }
 
     @Transactional

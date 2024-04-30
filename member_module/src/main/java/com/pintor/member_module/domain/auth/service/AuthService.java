@@ -3,6 +3,7 @@ package com.pintor.member_module.domain.auth.service;
 import com.pintor.member_module.common.errors.exception.ApiResException;
 import com.pintor.member_module.common.response.FailCode;
 import com.pintor.member_module.common.response.ResData;
+import com.pintor.member_module.common.principal.MemberPrincipal;
 import com.pintor.member_module.common.util.EncryptUtil;
 import com.pintor.member_module.common.util.JwtUtil;
 import com.pintor.member_module.domain.auth.repository.AuthTokenRepository;
@@ -21,7 +22,6 @@ import com.pintor.member_module.domain.auth.request.AuthLoginRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -232,7 +232,7 @@ public class AuthService {
     }
 
     @Transactional
-    private void saveAuthToken(Member member, String refreshToken, String accessToken) {
+    protected void saveAuthToken(Member member, String refreshToken, String accessToken) {
 
         AuthToken authToken = AuthToken.builder()
                 .id(member.getId())
@@ -256,8 +256,8 @@ public class AuthService {
     }
 
     @Transactional
-    public void logoutAll(User user) {
-        Member member = this.memberService.getMemberByEmail(user.getUsername());
+    public void logoutAll(MemberPrincipal principal) {
+        Member member = this.memberService.getMemberById(principal.getId());
         this.authTokenRepository.deleteAllById(Collections.singleton(member.getId()));
     }
 

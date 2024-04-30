@@ -1,5 +1,6 @@
 package com.pintor.purchase_module.domain.cart.controller;
 
+import com.pintor.purchase_module.common.principal.MemberPrincipal;
 import com.pintor.purchase_module.common.response.ResData;
 import com.pintor.purchase_module.common.response.SuccessCode;
 import com.pintor.purchase_module.domain.cart.entity.Cart;
@@ -10,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,9 +24,9 @@ public class CartController {
     private final CartService cartService;
 
     @GetMapping(consumes = MediaType.ALL_VALUE)
-    public ResponseEntity cartList(@AuthenticationPrincipal User user) {
+    public ResponseEntity cartList(@AuthenticationPrincipal MemberPrincipal principal) {
 
-        Cart cart = this.cartService.getCart(user);
+        Cart cart = this.cartService.getCart(principal);
 
         ResData resData = ResData.of(
                 SuccessCode.CART_LIST,

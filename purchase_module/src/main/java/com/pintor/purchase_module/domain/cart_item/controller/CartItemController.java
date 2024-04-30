@@ -1,5 +1,6 @@
 package com.pintor.purchase_module.domain.cart_item.controller;
 
+import com.pintor.purchase_module.common.principal.MemberPrincipal;
 import com.pintor.purchase_module.common.response.ResData;
 import com.pintor.purchase_module.common.response.SuccessCode;
 import com.pintor.purchase_module.domain.cart_item.request.CartItemCreateRequest;
@@ -11,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,12 +24,12 @@ public class CartItemController {
     private final CartItemService cartItemService;
 
     @PostMapping
-    public ResponseEntity cartItemCreate(@Valid @RequestBody CartItemCreateRequest request, BindingResult bindingResult,
-                                         @AuthenticationPrincipal User user) {
+    public ResponseEntity createCartItem(@Valid @RequestBody CartItemCreateRequest request, BindingResult bindingResult,
+                                         @AuthenticationPrincipal MemberPrincipal principal) {
 
         log.info("cart item create request: {}", request);
 
-        this.cartItemService.create(request, bindingResult, user);
+        this.cartItemService.create(request, bindingResult, principal);
 
         ResData resData = ResData.of(
                 SuccessCode.CREATE_CART_ITEM
@@ -40,12 +40,13 @@ public class CartItemController {
     }
 
     @PatchMapping(value = "/{id}")
-    public ResponseEntity cartItemUpdate(@PathVariable(value = "id") Long id,
-                                         @Valid @RequestBody CartItemUpdateRequest request, BindingResult bindingResult) {
+    public ResponseEntity updateCartItem(@PathVariable(value = "id") Long id,
+                                         @Valid @RequestBody CartItemUpdateRequest request, BindingResult bindingResult,
+                                         @AuthenticationPrincipal MemberPrincipal principal) {
 
         log.info("cart item update request: {}", request);
 
-        this.cartItemService.update(id, request, bindingResult);
+        this.cartItemService.update(id, request, bindingResult, principal);
 
         ResData resData = ResData.of(
                 SuccessCode.UPDATE_CART_ITEM
@@ -56,11 +57,12 @@ public class CartItemController {
     }
 
     @DeleteMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
-    public ResponseEntity cartItemDelete(@PathVariable(value = "id") Long id) {
+    public ResponseEntity deleteCartItem(@PathVariable(value = "id") Long id,
+                                         @AuthenticationPrincipal MemberPrincipal principal) {
 
         log.info("cart item delete request: id={}", id);
 
-        this.cartItemService.delete(id);
+        this.cartItemService.delete(id, principal);
 
         ResData resData = ResData.of(
                 SuccessCode.DELETE_CART_ITEM

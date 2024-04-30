@@ -3,6 +3,7 @@ package com.pintor.member_module.domain.member.service;
 import com.pintor.member_module.common.errors.exception.ApiResException;
 import com.pintor.member_module.common.response.FailCode;
 import com.pintor.member_module.common.response.ResData;
+import com.pintor.member_module.common.principal.MemberPrincipal;
 import com.pintor.member_module.common.util.AddressUtil;
 import com.pintor.member_module.common.util.EncryptUtil;
 import com.pintor.member_module.domain.member.repository.MemberRepository;
@@ -16,7 +17,6 @@ import com.pintor.member_module.domain.member.request.MemberPasswordResetRequest
 import com.pintor.member_module.domain.member.request.MemberProfileUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -160,11 +160,11 @@ public class MemberService {
     }
 
     @Transactional
-    public void profileUpdate(MemberProfileUpdateRequest request, BindingResult bindingResult, User user) {
+    public void profileUpdate(MemberProfileUpdateRequest request, BindingResult bindingResult, MemberPrincipal principal) {
 
         this.profileUpdateValidate(request, bindingResult);
 
-        Member member = this.getMemberByEmail(user.getUsername());
+        Member member = this.getMemberById(principal.getId());
 
         member = member.toBuilder()
                 .phoneNumber(request.getPhoneNumber() != null ? request.getPhoneNumber() : member.getPhoneNumber())
@@ -237,9 +237,9 @@ public class MemberService {
     }
 
     @Transactional
-    public void passwordUpdate(MemberPasswordUpdateRequest request, BindingResult bindingResult, User user) {
+    public void passwordUpdate(MemberPasswordUpdateRequest request, BindingResult bindingResult, MemberPrincipal principal) {
 
-        Member member = this.getMemberByEmail(user.getUsername());
+        Member member = this.getMemberById(principal.getId());
 
         this.passwordUpdateValidate(request, bindingResult, member);
 

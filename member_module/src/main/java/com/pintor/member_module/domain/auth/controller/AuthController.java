@@ -2,6 +2,7 @@ package com.pintor.member_module.domain.auth.controller;
 
 import com.pintor.member_module.common.response.ResData;
 import com.pintor.member_module.common.response.SuccessCode;
+import com.pintor.member_module.common.principal.MemberPrincipal;
 import com.pintor.member_module.common.util.MailUtil;
 import com.pintor.member_module.domain.auth.request.AuthLoginMailRequest;
 import com.pintor.member_module.domain.auth.request.AuthLoginRequest;
@@ -18,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -99,9 +99,9 @@ public class AuthController {
     }
 
     @PostMapping(value = "/logout/all", consumes = MediaType.ALL_VALUE)
-    public ResponseEntity logoutAll(@AuthenticationPrincipal User user) {
+    public ResponseEntity logoutAll(@AuthenticationPrincipal MemberPrincipal principal) {
 
-        this.authService.logoutAll(user);
+        this.authService.logoutAll(principal);
 
         ResData resData = ResData.of(
                 SuccessCode.LOGOUT_ALL

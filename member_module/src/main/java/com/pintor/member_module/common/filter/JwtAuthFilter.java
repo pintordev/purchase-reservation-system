@@ -1,5 +1,6 @@
 package com.pintor.member_module.common.filter;
 
+import com.pintor.member_module.common.principal.MemberPrincipal;
 import com.pintor.member_module.common.util.JwtUtil;
 import com.pintor.member_module.domain.auth.entity.AuthToken;
 import com.pintor.member_module.domain.auth.repository.AuthTokenRepository;
@@ -12,7 +13,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -57,10 +57,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private void forceAuthentication(Member member) {
 
-        User user = new User(member.getEmail(), member.getPassword(), member.getAuthorities());
+        MemberPrincipal principal = new MemberPrincipal(member.getId(), member.getEmail(), member.getPassword(), member.getRole().getType());
 
         UsernamePasswordAuthenticationToken authenticationToken =
-                UsernamePasswordAuthenticationToken.authenticated(user, null, user.getAuthorities());
+                UsernamePasswordAuthenticationToken.authenticated(principal, null, principal.getAuthorities());
 
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
     }
