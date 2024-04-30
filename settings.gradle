@@ -1,1 +1,5 @@
 rootProject.name = 'purchase_reservation_system'
+
+include 'member_module'
+include 'product_module'
+include 'purchase_module'
