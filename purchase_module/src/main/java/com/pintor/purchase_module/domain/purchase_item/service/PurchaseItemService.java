@@ -1,7 +1,8 @@
 package com.pintor.purchase_module.domain.purchase_item.service;
 
+import com.pintor.purchase_module.api.product_module.product.client.ProductClient;
+import com.pintor.purchase_module.api.product_module.product.response.ProductResponse;
 import com.pintor.purchase_module.domain.cart_item.entity.CartItem;
-import com.pintor.purchase_module.domain.cart_item.response.ProductResponse;
 import com.pintor.purchase_module.domain.purchase.entity.Purchase;
 import com.pintor.purchase_module.domain.purchase.request.PurchaseCreateUnitRequest;
 import com.pintor.purchase_module.domain.purchase_item.entity.PurchaseItem;
@@ -21,6 +22,8 @@ import java.util.stream.Collectors;
 public class PurchaseItemService {
 
     private final PurchaseItemRepository purchaseItemRepository;
+
+    private final ProductClient productClient;
 
     @Transactional
     public void createAll(List<CartItem> cartItemList, Purchase purchase, String type) {
@@ -58,14 +61,13 @@ public class PurchaseItemService {
     @Transactional
     public void create(PurchaseCreateUnitRequest request, Purchase purchase, Long productId) {
 
-        ProductResponse response = null;
-        // TODO: product module에서 상품 정보를 가져오는 로직 추가
+        ProductResponse response = productClient.getProduct(productId);
 
         PurchaseItem purchaseItem = PurchaseItem.builder()
                 .purchase(purchase)
-                .productId(response.getProductId())
-                .name(response.getName())
-                .price(response.getPrice())
+                .productId(response.productId())
+                .name(response.name())
+                .price(response.price())
                 .quantity(request.getQuantity())
                 .build();
         this.purchaseItemRepository.save(purchaseItem);

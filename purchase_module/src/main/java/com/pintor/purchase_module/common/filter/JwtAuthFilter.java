@@ -1,6 +1,6 @@
 package com.pintor.purchase_module.common.filter;
 
-import com.pintor.purchase_module.api.member_module.client.MemberClient;
+import com.pintor.purchase_module.api.member_module.member.client.MemberClient;
 import com.pintor.purchase_module.common.principal.MemberPrincipal;
 import com.pintor.purchase_module.common.util.JwtUtil;
 import jakarta.servlet.FilterChain;

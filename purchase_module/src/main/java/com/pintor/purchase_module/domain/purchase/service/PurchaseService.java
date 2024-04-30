@@ -1,5 +1,7 @@
 package com.pintor.purchase_module.domain.purchase.service;
 
+import com.pintor.purchase_module.api.product_module.stock.client.StockClient;
+import com.pintor.purchase_module.api.product_module.stock.request.StockAllRequest;
 import com.pintor.purchase_module.common.errors.exception.ApiResException;
 import com.pintor.purchase_module.common.principal.MemberPrincipal;
 import com.pintor.purchase_module.common.response.FailCode;
@@ -48,8 +50,9 @@ public class PurchaseService {
     private final CartItemService cartItemService;
     private final PurchaseItemService purchaseItemService;
     private final PurchaseLogService purchaseLogService;
-    private final AddressUtil addressUtil;
+    private final StockClient stockClient;
 
+    private final AddressUtil addressUtil;
     private final EntityManager entityManager;
 
     private Purchase refresh(Purchase purchase) {
@@ -94,8 +97,7 @@ public class PurchaseService {
         this.purchaseItemService.createAll(cartItemList, purchase, request.getType());
         this.purchaseLogService.log(purchase);
         this.cartItemService.deleteAll(cartItemList, request.getType());
-        // this.stockService.decreaseAll(cartItemList);
-        // TODO: feign client로 변경
+        this.stockClient.decreaseAllStock(StockAllRequest.fromCartItem(cartItemList));
 
         return this.refresh(purchase);
     }
@@ -273,8 +275,7 @@ public class PurchaseService {
 
         // 반품완료 후 재고 반영
         List<PurchaseItem> purchaseItemList = this.purchaseItemService.getAllByPurchaseList(purchaseList);
-        // this.stockService.increaseAll(purchaseItemList);
-        // TODO: feign client로 변경
+        this.stockClient.increaseAllStock(StockAllRequest.fromPurchaseItem(purchaseItemList));
 
         log.info("reverted stocks");
     }
@@ -397,8 +398,7 @@ public class PurchaseService {
         this.purchaseRepository.save(purchase);
         this.purchaseLogService.log(purchase);
         List<PurchaseItem> purchaseItemList = this.purchaseItemService.getAllByPurchase(purchase);
-        // this.stockService.increaseAll(purchaseItemList);
-        // TODO: feign client로 변경
+        this.stockClient.increaseAllStock(StockAllRequest.fromPurchaseItem(purchaseItemList));
     }
 
     private void cancelPurchaseValidate(Purchase purchase, MemberPrincipal principal) {

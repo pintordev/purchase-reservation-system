@@ -1,4 +1,4 @@
-package com.pintor.purchase_module.api.member_module.response;
+package com.pintor.purchase_module.api.member_module.member.response;
 
 import com.pintor.purchase_module.common.principal.MemberPrincipal;
 import lombok.AllArgsConstructor;

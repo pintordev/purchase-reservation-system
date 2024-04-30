@@ -6,10 +6,12 @@ import com.pintor.purchase_module.common.response.SuccessCode;
 import com.pintor.purchase_module.domain.purchase.entity.Purchase;
 import com.pintor.purchase_module.domain.purchase.request.PurchaseCreateRequest;
 import com.pintor.purchase_module.domain.purchase.response.PurchaseCreateResponse;
+import com.pintor.purchase_module.domain.purchase.response.PurchaseListResponse;
 import com.pintor.purchase_module.domain.purchase.service.PurchaseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -57,27 +59,27 @@ public class PurchaseController {
 //                .status(resData.getStatus())
 //                .body(resData);
 //    }
-//
-//    @GetMapping(consumes = MediaType.ALL_VALUE)
-//    public ResponseEntity purchaseList(@RequestParam(value = "page", defaultValue = "1") int page,
-//                                       @RequestParam(value = "size", defaultValue = "20") int size,
-//                                       @RequestParam(value = "sort", defaultValue = "createdAt") String sort,
-//                                       @RequestParam(value = "dir", defaultValue = "desc") String dir,
-//                                       @RequestParam(value = "status", defaultValue = "all") String status,
-//                                       @AuthenticationPrincipal MemberPrincipal principal) {
-//
-//        log.info("purchase list request: page={}, size={}, sort={}, dir={}, status={}", page, size, sort, dir, status);
-//
-//        Page<Purchase> purchaseList = this.purchaseService.getPurchaseList(page, size, sort, dir, status.toUpperCase(), principal);
-//
-//        ResData resData = ResData.of(
-//                SuccessCode.PURCHASE_LIST,
-//                PurchaseListResponse.of(purchaseList)
-//        );
-//        return ResponseEntity
-//                .status(resData.getStatus())
-//                .body(resData);
-//    }
+
+    @GetMapping(consumes = MediaType.ALL_VALUE)
+    public ResponseEntity purchaseList(@RequestParam(value = "page", defaultValue = "1") int page,
+                                       @RequestParam(value = "size", defaultValue = "20") int size,
+                                       @RequestParam(value = "sort", defaultValue = "createdAt") String sort,
+                                       @RequestParam(value = "dir", defaultValue = "desc") String dir,
+                                       @RequestParam(value = "status", defaultValue = "all") String status,
+                                       @AuthenticationPrincipal MemberPrincipal principal) {
+
+        log.info("purchase list request: page={}, size={}, sort={}, dir={}, status={}", page, size, sort, dir, status);
+
+        Page<Purchase> purchaseList = this.purchaseService.getPurchaseList(page, size, sort, dir, status.toUpperCase(), principal);
+
+        ResData resData = ResData.of(
+                SuccessCode.PURCHASE_LIST,
+                PurchaseListResponse.of(purchaseList)
+        );
+        return ResponseEntity
+                .status(resData.getStatus())
+                .body(resData);
+    }
 
     @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
     public ResponseEntity purchaseDetail(@PathVariable(value = "id") Long id,

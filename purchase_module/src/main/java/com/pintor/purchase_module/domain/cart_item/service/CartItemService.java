@@ -1,5 +1,7 @@
 package com.pintor.purchase_module.domain.cart_item.service;
 
+import com.pintor.purchase_module.api.product_module.product.client.ProductClient;
+import com.pintor.purchase_module.api.product_module.product.response.ProductResponse;
 import com.pintor.purchase_module.common.errors.exception.ApiResException;
 import com.pintor.purchase_module.common.principal.MemberPrincipal;
 import com.pintor.purchase_module.common.response.FailCode;
@@ -10,7 +12,6 @@ import com.pintor.purchase_module.domain.cart_item.entity.CartItem;
 import com.pintor.purchase_module.domain.cart_item.repository.CartItemRepository;
 import com.pintor.purchase_module.domain.cart_item.request.CartItemCreateRequest;
 import com.pintor.purchase_module.domain.cart_item.request.CartItemUpdateRequest;
-import com.pintor.purchase_module.domain.cart_item.response.ProductResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,22 +32,22 @@ public class CartItemService {
     private final CartItemRepository cartItemRepository;
 
     private final CartService cartService;
+    private final ProductClient productClient;
 
     @Transactional
     public void create(CartItemCreateRequest request, BindingResult bindingResult, MemberPrincipal principal) {
 
         this.createValidate(bindingResult);
 
-        // TODO: feign client로 product module 호출
-        ProductResponse response = null;
+        ProductResponse response = productClient.getProduct(request.getProductId());
 
         Cart cart = this.cartService.getCart(principal);
 
         CartItem cartItem = CartItem.builder()
                 .cart(cart)
-                .productId(response.getProductId())
-                .name(response.getName())
-                .price(response.getPrice())
+                .productId(response.productId())
+                .name(response.name())
+                .price(response.price())
                 .quantity(request.getQuantity())
                 .build();
 

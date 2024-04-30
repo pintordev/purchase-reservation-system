@@ -1,6 +1,6 @@
-package com.pintor.purchase_module.api.member_module.client;
+package com.pintor.purchase_module.api.member_module.member.client;
 
-import com.pintor.purchase_module.api.member_module.response.MemberPrincipalResponse;
+import com.pintor.purchase_module.api.member_module.member.response.MemberPrincipalResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;

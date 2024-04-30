@@ -13,7 +13,7 @@ public class ScheduledJobUtil {
 
     private final PurchaseService purchaseService;
 
-    @Scheduled(cron = "* * 16 * * ?")
+    @Scheduled(cron = "0 0 16 * * ?")
     public void changePurchaseStatus() {
         log.info("changing PurchaseStatus job started");
         this.purchaseService.changeStatus();
