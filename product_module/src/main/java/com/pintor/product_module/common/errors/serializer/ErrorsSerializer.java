@@ -21,6 +21,14 @@ public class ErrorsSerializer extends JsonSerializer<Errors> {
                 gen.writeStartObject();
                 gen.writeStringField("field", err.getField());
                 gen.writeStringField("code", err.getCode());
+                if (err.getArguments() != null) {
+                    gen.writeFieldName("value");
+                    gen.writeStartArray();
+                    for (Object arg : err.getArguments()) {
+                        gen.writeString(arg.toString());
+                    }
+                    gen.writeEndArray();
+                }
                 if (err.getRejectedValue() != null) {
                     gen.writeStringField("value", err.getRejectedValue().toString());
                 }

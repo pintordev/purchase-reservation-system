@@ -102,10 +102,13 @@ public class ProductService {
     }
 
     public Product getProductDetail(Long id) {
+        BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "productDetail");
+        bindingResult.rejectValue("id", "invalid id", new Object[]{id}, "product does not exist");
         return this.productRepository.findById(id)
                 .orElseThrow(() -> new ApiResException(
                         ResData.of(
-                                FailCode.PRODUCT_NOT_FOUND
+                                FailCode.PRODUCT_NOT_FOUND,
+                                bindingResult
                         )
                 ));
     }
