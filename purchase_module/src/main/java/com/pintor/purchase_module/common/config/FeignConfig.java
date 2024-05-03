@@ -1,6 +1,7 @@
 package com.pintor.purchase_module.common.config;
 
 import com.pintor.purchase_module.common.errors.decoder.FeignErrorDecoder;
+import feign.Logger;
 import feign.codec.ErrorDecoder;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
@@ -17,5 +18,10 @@ public class FeignConfig {
     @Bean
     public ErrorDecoder errorDecoder() {
         return new FeignErrorDecoder();
+    }
+
+    @Bean
+    public Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
     }
 }

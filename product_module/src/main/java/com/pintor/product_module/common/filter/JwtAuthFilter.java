@@ -1,11 +1,9 @@
-package com.pintor.member_module.common.filter;
+package com.pintor.product_module.common.filter;
 
-import com.pintor.member_module.common.errors.exception.ApiResException;
-import com.pintor.member_module.common.response.FailCode;
-import com.pintor.member_module.common.response.ResData;
-import com.pintor.member_module.common.util.EndpointEntries;
-import com.pintor.member_module.domain.auth.service.AuthService;
-import com.pintor.member_module.domain.member.response.MemberPrincipalResponse;
+import com.pintor.product_module.common.errors.exception.ApiResException;
+import com.pintor.product_module.common.response.FailCode;
+import com.pintor.product_module.common.response.ResData;
+import com.pintor.product_module.common.util.EndpointEntries;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +21,6 @@ import java.io.IOException;
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-    private final AuthService authService;
     private final EndpointEntries endpointEntries;
     private final StringRedisTemplate redisTemplate;
 
@@ -37,27 +34,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         if (this.endpointEntries.isInternal(request)) {
             this.checkServerToken(request, response);
-        } else {
-            this.checkBearerToken(request, response);
         }
         filterChain.doFilter(request, response);
-    }
-
-    private void checkBearerToken(HttpServletRequest request, HttpServletResponse response) {
-
-        String bearerToken = request.getHeader("Authorization");
-
-        if (bearerToken == null) {
-            throw new ApiResException(
-                    ResData.of(
-                            FailCode.UNAUTHORIZED
-                    )
-            );
-        }
-
-        MemberPrincipalResponse passport = this.authService.getMemberPrincipalByAuthToken(bearerToken);
-
-        request.setAttribute("X-Member-Id", passport.id().toString());
     }
 
     private void checkServerToken(HttpServletRequest request, HttpServletResponse response) {

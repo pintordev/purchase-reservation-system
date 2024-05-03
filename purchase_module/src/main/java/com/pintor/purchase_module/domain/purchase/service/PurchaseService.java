@@ -3,7 +3,6 @@ package com.pintor.purchase_module.domain.purchase.service;
 import com.pintor.purchase_module.api.product_module.stock.client.StockClient;
 import com.pintor.purchase_module.api.product_module.stock.request.StockAllRequest;
 import com.pintor.purchase_module.common.errors.exception.ApiResException;
-import com.pintor.purchase_module.common.principal.MemberPrincipal;
 import com.pintor.purchase_module.common.response.FailCode;
 import com.pintor.purchase_module.common.response.ResData;
 import com.pintor.purchase_module.common.util.AddressUtil;
@@ -72,18 +71,18 @@ public class PurchaseService {
     }
 
     @Transactional
-    public Purchase create(PurchaseCreateRequest request, BindingResult bindingResult, MemberPrincipal principal) {
+    public Purchase create(PurchaseCreateRequest request, BindingResult bindingResult, Long memberId) {
 
         this.createValidate(request, bindingResult);
 
-        Cart cart = this.cartService.getCart(principal);
+        Cart cart = this.cartService.getCart(memberId);
         List<CartItem> cartItemList = this.cartItemService.getAllByCart(cart);
         int totalPrice = cartItemList.stream()
                 .mapToInt(cartItem -> cartItem.getPrice() * cartItem.getQuantity())
                 .sum();
 
         Purchase purchase = Purchase.builder()
-                .memberId(principal.getId())
+                .memberId(memberId)
                 .status(PurchaseStatus.PURCHASED)
                 .totalPrice(totalPrice)
                 .phoneNumber(request.getPhoneNumber())
@@ -280,7 +279,7 @@ public class PurchaseService {
         log.info("reverted stocks");
     }
 
-    public Page<Purchase> getPurchaseList(int page, int size, String sort, String dir, String status, MemberPrincipal principal) {
+    public Page<Purchase> getPurchaseList(int page, int size, String sort, String dir, String status, Long memberId) {
 
         this.getPurchaseListValidate(page, size, sort, dir, status);
 
@@ -290,9 +289,9 @@ public class PurchaseService {
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sorts));
 
         if (status.equals("ALL")) {
-            return this.purchaseRepository.findAllByMemberId(principal.getId(), pageable);
+            return this.purchaseRepository.findAllByMemberId(memberId, pageable);
         } else {
-            return this.purchaseRepository.findAllByMemberIdAndStatus(principal.getId(), PurchaseStatus.valueOf(status), pageable);
+            return this.purchaseRepository.findAllByMemberIdAndStatus(memberId, PurchaseStatus.valueOf(status), pageable);
         }
     }
 
@@ -361,17 +360,17 @@ public class PurchaseService {
         }
     }
 
-    public Purchase getPurchaseDetail(Long id, MemberPrincipal principal) {
+    public Purchase getPurchaseDetail(Long id, Long memberId) {
         Purchase purchase = this.getPurchaseById(id);
-        this.getPurchaseDetailValidate(purchase.getMemberId(), principal);
+        this.getPurchaseDetailValidate(purchase, memberId);
         return purchase;
     }
 
-    private void getPurchaseDetailValidate(Long memberId, MemberPrincipal principal) {
+    private void getPurchaseDetailValidate(Purchase purchase, Long memberId) {
 
         BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "purchaseDetail");
 
-        if (memberId != principal.getId()) {
+        if (purchase.getMemberId() != memberId) {
 
             bindingResult.rejectValue("id", "forbidden", "forbidden access to purchase that does not belong to member");
 
@@ -385,11 +384,11 @@ public class PurchaseService {
     }
 
     @Transactional
-    public void cancelPurchase(Long id, MemberPrincipal principal) {
+    public void cancelPurchase(Long id, Long memberId) {
 
         Purchase purchase = this.getPurchaseById(id);
 
-        this.cancelPurchaseValidate(purchase, principal);
+        this.cancelPurchaseValidate(purchase, memberId);
 
         purchase = purchase.toBuilder()
                 .status(PurchaseStatus.CANCELLED)
@@ -401,11 +400,11 @@ public class PurchaseService {
         this.stockClient.increaseAllStock(StockAllRequest.fromPurchaseItem(purchaseItemList));
     }
 
-    private void cancelPurchaseValidate(Purchase purchase, MemberPrincipal principal) {
+    private void cancelPurchaseValidate(Purchase purchase, Long memberId) {
 
         BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "cancelPurchase");
 
-        if (purchase.getMemberId() != principal.getId()) {
+        if (purchase.getMemberId() != memberId) {
 
             bindingResult.rejectValue("id", "forbidden", "forbidden access to purchase that does not belong to member");
 
@@ -431,11 +430,11 @@ public class PurchaseService {
     }
 
     @Transactional
-    public void returnPurchase(Long id, MemberPrincipal principal) {
+    public void returnPurchase(Long id, Long memberId) {
 
         Purchase purchase = this.getPurchaseById(id);
 
-        this.returnPurchaseValidate(purchase, principal);
+        this.returnPurchaseValidate(purchase, memberId);
 
         purchase = purchase.toBuilder()
                 .status(PurchaseStatus.ON_RETURN)
@@ -445,11 +444,11 @@ public class PurchaseService {
         this.purchaseLogService.log(purchase);
     }
 
-    private void returnPurchaseValidate(Purchase purchase, MemberPrincipal principal) {
+    private void returnPurchaseValidate(Purchase purchase, Long memberId) {
 
         BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "returnPurchase");
 
-        if (purchase.getMemberId() != principal.getId()) {
+        if (purchase.getMemberId() != memberId) {
 
             bindingResult.rejectValue("id", "forbidden", "forbidden access to purchase that does not belong to member");
 
