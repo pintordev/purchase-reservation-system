@@ -3,7 +3,6 @@ package com.pintor.purchase_module.domain.cart_item.service;
 import com.pintor.purchase_module.api.product_module.product.client.ProductClient;
 import com.pintor.purchase_module.api.product_module.product.response.ProductResponse;
 import com.pintor.purchase_module.common.errors.exception.ApiResException;
-import com.pintor.purchase_module.common.principal.MemberPrincipal;
 import com.pintor.purchase_module.common.response.FailCode;
 import com.pintor.purchase_module.common.response.ResData;
 import com.pintor.purchase_module.domain.cart.entity.Cart;
@@ -35,13 +34,13 @@ public class CartItemService {
     private final ProductClient productClient;
 
     @Transactional
-    public void create(CartItemCreateRequest request, BindingResult bindingResult, MemberPrincipal principal) {
+    public void create(CartItemCreateRequest request, BindingResult bindingResult, Long memberId) {
 
         this.createValidate(bindingResult);
 
         ProductResponse response = productClient.getProduct(request.getProductId());
 
-        Cart cart = this.cartService.getCart(principal);
+        Cart cart = this.cartService.getCart(memberId);
 
         CartItem cartItem = CartItem.builder()
                 .cart(cart)
@@ -70,11 +69,11 @@ public class CartItemService {
     }
 
     @Transactional
-    public void update(Long id, CartItemUpdateRequest request, BindingResult bindingResult, MemberPrincipal principal) {
+    public void update(Long id, CartItemUpdateRequest request, BindingResult bindingResult, Long memberId) {
 
         CartItem cartItem = this.getCartItem(id);
 
-        this.updateValidate(cartItem.getCart().getMemberId(), bindingResult, principal);
+        this.updateValidate(cartItem, bindingResult, memberId);
 
         cartItem = cartItem.toBuilder()
                 .quantity(request.getQuantity() != null ? request.getQuantity() : cartItem.getQuantity())
@@ -84,7 +83,7 @@ public class CartItemService {
         this.cartItemRepository.save(cartItem);
     }
 
-    private void updateValidate(Long memberId, BindingResult bindingResult, MemberPrincipal principal) {
+    private void updateValidate(CartItem cartItem, BindingResult bindingResult, Long memberId) {
 
         if (bindingResult.hasErrors()) {
 
@@ -98,7 +97,7 @@ public class CartItemService {
             );
         }
 
-        if (memberId != principal.getId()) {
+        if (cartItem.getCart().getMemberId() != memberId) {
 
             bindingResult.rejectValue("id", "forbidden", "forbidden access to cart item that does not belong to member");
 
@@ -121,17 +120,17 @@ public class CartItemService {
     }
 
     @Transactional
-    public void delete(Long id, MemberPrincipal principal) {
+    public void delete(Long id, Long memberId) {
         CartItem cartItem = this.getCartItem(id);
-        this.deleteValidate(cartItem.getCart().getMemberId(), principal);
+        this.deleteValidate(cartItem, memberId);
         this.cartItemRepository.delete(cartItem);
     }
 
-    private void deleteValidate(Long memberId, MemberPrincipal principal) {
+    private void deleteValidate(CartItem cartItem, Long memberId) {
 
         BindingResult bindingResult = new MapBindingResult(new HashMap<>(), "deleteCartItem");
 
-        if (memberId != principal.getId()) {
+        if (cartItem.getCart().getMemberId() != memberId) {
 
             bindingResult.rejectValue("id", "forbidden", "forbidden access to cart item that does not belong to member");
 

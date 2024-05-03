@@ -1,6 +1,5 @@
 package com.pintor.purchase_module.domain.purchase.controller;
 
-import com.pintor.purchase_module.common.principal.MemberPrincipal;
 import com.pintor.purchase_module.common.response.ResData;
 import com.pintor.purchase_module.common.response.SuccessCode;
 import com.pintor.purchase_module.domain.purchase.entity.Purchase;
@@ -8,13 +7,13 @@ import com.pintor.purchase_module.domain.purchase.request.PurchaseCreateRequest;
 import com.pintor.purchase_module.domain.purchase.response.PurchaseCreateResponse;
 import com.pintor.purchase_module.domain.purchase.response.PurchaseListResponse;
 import com.pintor.purchase_module.domain.purchase.service.PurchaseService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,11 +27,13 @@ public class PurchaseController {
 
     @PostMapping
     public ResponseEntity createPurchase(@Valid @RequestBody PurchaseCreateRequest request, BindingResult bindingResult,
-                                         @AuthenticationPrincipal MemberPrincipal principal) {
+                                         HttpServletRequest servletRequest) {
 
         log.info("purchase create request: {}", request);
 
-        Purchase purchase = this.purchaseService.create(request, bindingResult, principal);
+        Long memberId = Long.parseLong(servletRequest.getAttribute("X-Member-Id").toString());
+
+        Purchase purchase = this.purchaseService.create(request, bindingResult, memberId);
 
         ResData resData = ResData.of(
                 SuccessCode.CREATE_PURCHASE,
@@ -66,11 +67,13 @@ public class PurchaseController {
                                        @RequestParam(value = "sort", defaultValue = "createdAt") String sort,
                                        @RequestParam(value = "dir", defaultValue = "desc") String dir,
                                        @RequestParam(value = "status", defaultValue = "all") String status,
-                                       @AuthenticationPrincipal MemberPrincipal principal) {
+                                       HttpServletRequest servletRequest) {
 
         log.info("purchase list request: page={}, size={}, sort={}, dir={}, status={}", page, size, sort, dir, status);
 
-        Page<Purchase> purchaseList = this.purchaseService.getPurchaseList(page, size, sort, dir, status.toUpperCase(), principal);
+        Long memberId = Long.parseLong(servletRequest.getAttribute("X-Member-Id").toString());
+
+        Page<Purchase> purchaseList = this.purchaseService.getPurchaseList(page, size, sort, dir, status.toUpperCase(), memberId);
 
         ResData resData = ResData.of(
                 SuccessCode.PURCHASE_LIST,
@@ -83,11 +86,13 @@ public class PurchaseController {
 
     @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
     public ResponseEntity purchaseDetail(@PathVariable(value = "id") Long id,
-                                         @AuthenticationPrincipal MemberPrincipal principal) {
+                                         HttpServletRequest servletRequest) {
 
         log.info("purchase detail request: id={}", id);
 
-        Purchase purchase = this.purchaseService.getPurchaseDetail(id, principal);
+        Long memberId = Long.parseLong(servletRequest.getAttribute("X-Member-Id").toString());
+
+        Purchase purchase = this.purchaseService.getPurchaseDetail(id, memberId);
 
         ResData resData = ResData.of(
                 SuccessCode.PURCHASE_DETAIL,
@@ -100,11 +105,13 @@ public class PurchaseController {
 
     @PatchMapping(value = "/{id}/cancel", consumes = MediaType.ALL_VALUE)
     public ResponseEntity cancelPurchase(@PathVariable(value = "id") Long id,
-                                         @AuthenticationPrincipal MemberPrincipal principal) {
+                                         HttpServletRequest servletRequest) {
 
         log.info("purchase cancel request: id={}", id);
 
-        this.purchaseService.cancelPurchase(id, principal);
+        Long memberId = Long.parseLong(servletRequest.getAttribute("X-Member-Id").toString());
+
+        this.purchaseService.cancelPurchase(id, memberId);
 
         ResData resData = ResData.of(
                 SuccessCode.CANCEL_PURCHASE
@@ -116,11 +123,13 @@ public class PurchaseController {
 
     @PatchMapping(value = "/{id}/return", consumes = MediaType.ALL_VALUE)
     public ResponseEntity returnPurchase(@PathVariable(value = "id") Long id,
-                                         @AuthenticationPrincipal MemberPrincipal principal) {
+                                         HttpServletRequest servletRequest) {
 
         log.info("purchase return request: id={}", id);
 
-        this.purchaseService.returnPurchase(id, principal);
+        Long memberId = Long.parseLong(servletRequest.getAttribute("X-Member-Id").toString());
+
+        this.purchaseService.returnPurchase(id, memberId);
 
         ResData resData = ResData.of(
                 SuccessCode.RETURN_PURCHASE

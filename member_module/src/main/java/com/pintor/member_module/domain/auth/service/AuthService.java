@@ -1,27 +1,29 @@
 package com.pintor.member_module.domain.auth.service;
 
 import com.pintor.member_module.common.errors.exception.ApiResException;
+import com.pintor.member_module.common.principal.MemberPrincipal;
 import com.pintor.member_module.common.response.FailCode;
 import com.pintor.member_module.common.response.ResData;
-import com.pintor.member_module.common.principal.MemberPrincipal;
 import com.pintor.member_module.common.util.EncryptUtil;
 import com.pintor.member_module.common.util.JwtUtil;
+import com.pintor.member_module.domain.auth.entity.AuthToken;
+import com.pintor.member_module.domain.auth.entity.LoginToken;
+import com.pintor.member_module.domain.auth.entity.MailToken;
 import com.pintor.member_module.domain.auth.repository.AuthTokenRepository;
 import com.pintor.member_module.domain.auth.repository.LoginTokenRepository;
 import com.pintor.member_module.domain.auth.repository.MailTokenRepository;
 import com.pintor.member_module.domain.auth.request.AuthLoginMailRequest;
+import com.pintor.member_module.domain.auth.request.AuthLoginRequest;
 import com.pintor.member_module.domain.auth.request.AuthVerifyMailRequest;
 import com.pintor.member_module.domain.auth.response.AuthLoginResponse;
 import com.pintor.member_module.domain.member.entity.Member;
 import com.pintor.member_module.domain.member.repository.MemberRepository;
+import com.pintor.member_module.domain.member.response.MemberPrincipalResponse;
 import com.pintor.member_module.domain.member.service.MemberService;
-import com.pintor.member_module.domain.auth.entity.AuthToken;
-import com.pintor.member_module.domain.auth.entity.LoginToken;
-import com.pintor.member_module.domain.auth.entity.MailToken;
-import com.pintor.member_module.domain.auth.request.AuthLoginRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
@@ -53,6 +55,7 @@ public class AuthService {
 
     private final EncryptUtil encryptUtil;
     private final JwtUtil jwtUtil;
+    private final StringRedisTemplate redisTemplate;
 
     @Transactional
     public String saveMailToken(Long memberId) {
@@ -284,5 +287,41 @@ public class AuthService {
                                 FailCode.INVALID_REFRESH_TOKEN
                         )
                 ));
+    }
+
+    public MemberPrincipalResponse getMemberPrincipalByAuthToken(String bearerToken) {
+
+        String accessToken = bearerToken.substring("Bearer ".length());
+        Long id = this.jwtUtil.getMemberId(accessToken);
+
+        if (id == -1) {
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.EXPIRED_ACCESS_TOKEN
+                    )
+            );
+        }
+
+        if (id == -2) {
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.INVALID_ACCESS_TOKEN
+                    )
+            );
+        }
+
+        if (!this.memberRepository.existsById(id)) {
+            throw new ApiResException(
+                    ResData.of(
+                            FailCode.UNAUTHORIZED
+                    )
+            );
+        }
+
+        return this.memberService.getMemberPrincipal(id);
+    }
+
+    public void genServerToken() {
+        this.redisTemplate.opsForValue().set("server_token", this.jwtUtil.genRefreshToken());
     }
 }

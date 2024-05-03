@@ -1,6 +1,5 @@
 package com.pintor.purchase_module.domain.cart.service;
 
-import com.pintor.purchase_module.common.principal.MemberPrincipal;
 import com.pintor.purchase_module.domain.cart.entity.Cart;
 import com.pintor.purchase_module.domain.cart.repository.CartRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,13 +15,13 @@ public class CartService {
 
     private final CartRepository cartRepository;
 
-    public Cart getCart(MemberPrincipal principal) {
+    public Cart getCart(Long memberId) {
 
-        Cart cart = this.cartRepository.findByMemberId(principal.getId())
+        Cart cart = this.cartRepository.findByMemberId(memberId)
                 .orElse(null);
 
         if (cart == null) {
-            cart = this.createCart(principal.getId());
+            cart = this.createCart(memberId);
         }
 
         return cart;

@@ -1,8 +1,7 @@
 package com.pintor.purchase_module.common.config;
 
-import com.pintor.purchase_module.common.errors.exception_hanlder.ApiAuthenticationExceptionHandler;
-import com.pintor.purchase_module.common.errors.exception_hanlder.ApiAuthorizationExceptionHandler;
 import com.pintor.purchase_module.common.filter.JwtAuthFilter;
+import com.pintor.purchase_module.common.filter.JwtExceptionFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,21 +17,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
-    private final ApiAuthenticationExceptionHandler apiAuthenticationExceptionHandler;
-    private final ApiAuthorizationExceptionHandler apiAuthorizationExceptionHandler;
+    private final JwtExceptionFilter jwtExceptionFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
-                .securityMatcher("/api/**")
-                .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .anyRequest().authenticated()
-                )
-                .exceptionHandling(exceptionHandling -> exceptionHandling
-                        .authenticationEntryPoint(apiAuthenticationExceptionHandler)
-                        .accessDeniedHandler(apiAuthorizationExceptionHandler)
-                )
                 .cors(cors -> cors
                         .disable()
                 )
@@ -51,6 +41,10 @@ public class SecurityConfig {
                 .addFilterBefore(
                         this.jwtAuthFilter,
                         UsernamePasswordAuthenticationFilter.class
+                )
+                .addFilterBefore(
+                        this.jwtExceptionFilter,
+                        JwtAuthFilter.class
                 )
         ;
 
