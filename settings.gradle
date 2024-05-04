@@ -1,5 +1,6 @@
 rootProject.name = 'purchase_reservation_system'
 
+include 'api_gateway'
 include 'member_module'
 include 'product_module'
 include 'purchase_module'
