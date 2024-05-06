@@ -1,7 +1,7 @@
 package com.pintor.product_module.common.config;
 
-import com.pintor.product_module.common.filter.JwtAuthFilter;
-import com.pintor.product_module.common.filter.JwtExceptionFilter;
+import com.pintor.product_module.common.filter.ExceptionHandlingFilter;
+import com.pintor.product_module.common.filter.ServerAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,8 +16,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-    private final JwtAuthFilter jwtAuthFilter;
-    private final JwtExceptionFilter jwtExceptionFilter;
+    private final ServerAuthFilter serverAuthFilter;
+    private final ExceptionHandlingFilter exceptionHandlingFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -39,12 +39,12 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .addFilterBefore(
-                        this.jwtAuthFilter,
+                        serverAuthFilter,
                         UsernamePasswordAuthenticationFilter.class
                 )
                 .addFilterBefore(
-                        this.jwtExceptionFilter,
-                        JwtAuthFilter.class
+                        exceptionHandlingFilter,
+                        ServerAuthFilter.class
                 )
         ;
 

@@ -1,7 +1,6 @@
 package com.pintor.member_module.domain.auth.service;
 
 import com.pintor.member_module.common.errors.exception.ApiResException;
-import com.pintor.member_module.common.principal.MemberPrincipal;
 import com.pintor.member_module.common.response.FailCode;
 import com.pintor.member_module.common.response.ResData;
 import com.pintor.member_module.common.util.EncryptUtil;
@@ -248,8 +247,9 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(String accessToken) {
+    public void logout(String bearerToken) {
 
+        String accessToken = bearerToken.substring("Bearer ".length());
         AuthToken authToken = this.authTokenRepository.findByAccessToken(accessToken)
                 .orElse(null);
 
@@ -259,9 +259,8 @@ public class AuthService {
     }
 
     @Transactional
-    public void logoutAll(MemberPrincipal principal) {
-        Member member = this.memberService.getMemberById(principal.getId());
-        this.authTokenRepository.deleteAllById(Collections.singleton(member.getId()));
+    public void logoutAll(Long memberId) {
+        this.authTokenRepository.deleteAllById(Collections.singleton(memberId));
     }
 
     @Transactional

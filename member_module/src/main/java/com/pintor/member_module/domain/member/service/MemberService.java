@@ -3,19 +3,18 @@ package com.pintor.member_module.domain.member.service;
 import com.pintor.member_module.common.errors.exception.ApiResException;
 import com.pintor.member_module.common.response.FailCode;
 import com.pintor.member_module.common.response.ResData;
-import com.pintor.member_module.common.principal.MemberPrincipal;
 import com.pintor.member_module.common.util.AddressUtil;
 import com.pintor.member_module.common.util.EncryptUtil;
+import com.pintor.member_module.domain.auth.repository.AuthTokenRepository;
+import com.pintor.member_module.domain.member.entity.Member;
 import com.pintor.member_module.domain.member.repository.MemberRepository;
+import com.pintor.member_module.domain.member.request.MemberPasswordResetRequest;
 import com.pintor.member_module.domain.member.request.MemberPasswordUpdateRequest;
+import com.pintor.member_module.domain.member.request.MemberProfileUpdateRequest;
 import com.pintor.member_module.domain.member.request.MemberSignupRequest;
 import com.pintor.member_module.domain.member.response.MemberPasswordResetResponse;
 import com.pintor.member_module.domain.member.response.MemberPrincipalResponse;
 import com.pintor.member_module.domain.member.role.MemberRole;
-import com.pintor.member_module.domain.auth.repository.AuthTokenRepository;
-import com.pintor.member_module.domain.member.entity.Member;
-import com.pintor.member_module.domain.member.request.MemberPasswordResetRequest;
-import com.pintor.member_module.domain.member.request.MemberProfileUpdateRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -161,11 +160,11 @@ public class MemberService {
     }
 
     @Transactional
-    public void profileUpdate(MemberProfileUpdateRequest request, BindingResult bindingResult, MemberPrincipal principal) {
+    public void profileUpdate(MemberProfileUpdateRequest request, BindingResult bindingResult, Long memberId) {
 
         this.profileUpdateValidate(request, bindingResult);
 
-        Member member = this.getMemberById(principal.getId());
+        Member member = this.getMemberById(memberId);
 
         member = member.toBuilder()
                 .phoneNumber(request.getPhoneNumber() != null ? request.getPhoneNumber() : member.getPhoneNumber())
@@ -238,9 +237,9 @@ public class MemberService {
     }
 
     @Transactional
-    public void passwordUpdate(MemberPasswordUpdateRequest request, BindingResult bindingResult, MemberPrincipal principal) {
+    public void passwordUpdate(MemberPasswordUpdateRequest request, BindingResult bindingResult, Long memberId) {
 
-        Member member = this.getMemberById(principal.getId());
+        Member member = this.getMemberById(memberId);
 
         this.passwordUpdateValidate(request, bindingResult, member);
 

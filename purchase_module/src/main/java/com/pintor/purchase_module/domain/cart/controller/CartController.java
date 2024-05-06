@@ -5,12 +5,12 @@ import com.pintor.purchase_module.common.response.SuccessCode;
 import com.pintor.purchase_module.domain.cart.entity.Cart;
 import com.pintor.purchase_module.domain.cart.response.CartListResponse;
 import com.pintor.purchase_module.domain.cart.service.CartService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,9 +23,7 @@ public class CartController {
     private final CartService cartService;
 
     @GetMapping(consumes = MediaType.ALL_VALUE)
-    public ResponseEntity cartList(HttpServletRequest servletRequest) {
-
-        Long memberId = Long.parseLong(servletRequest.getAttribute("X-Member-Id").toString());
+    public ResponseEntity cartList(@RequestHeader("X-Member-Id") Long memberId) {
 
         Cart cart = this.cartService.getCart(memberId);
 

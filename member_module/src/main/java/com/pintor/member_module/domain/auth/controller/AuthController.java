@@ -2,7 +2,6 @@ package com.pintor.member_module.domain.auth.controller;
 
 import com.pintor.member_module.common.response.ResData;
 import com.pintor.member_module.common.response.SuccessCode;
-import com.pintor.member_module.common.principal.MemberPrincipal;
 import com.pintor.member_module.common.util.MailUtil;
 import com.pintor.member_module.domain.auth.request.AuthLoginMailRequest;
 import com.pintor.member_module.domain.auth.request.AuthLoginRequest;
@@ -11,19 +10,14 @@ import com.pintor.member_module.domain.auth.response.AuthLoginResponse;
 import com.pintor.member_module.domain.auth.service.AuthService;
 import com.pintor.member_module.domain.member.entity.Member;
 import com.pintor.member_module.domain.member.service.MemberService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequestMapping(value = "/api/auth", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -85,10 +79,9 @@ public class AuthController {
     }
 
     @PostMapping(value = "/logout", consumes = MediaType.ALL_VALUE)
-    public ResponseEntity logout(HttpServletRequest request) {
+    public ResponseEntity logout(@RequestHeader("Authorization") String bearerToken) {
 
-        String accessToken = request.getHeader("Authorization").substring("Bearer ".length());
-        this.authService.logout(accessToken);
+        this.authService.logout(bearerToken);
 
         ResData resData = ResData.of(
                 SuccessCode.LOGOUT
@@ -99,9 +92,9 @@ public class AuthController {
     }
 
     @PostMapping(value = "/logout/all", consumes = MediaType.ALL_VALUE)
-    public ResponseEntity logoutAll(@AuthenticationPrincipal MemberPrincipal principal) {
+    public ResponseEntity logoutAll(@RequestHeader("X-Member-Id") Long memberId) {
 
-        this.authService.logoutAll(principal);
+        this.authService.logoutAll(memberId);
 
         ResData resData = ResData.of(
                 SuccessCode.LOGOUT_ALL
@@ -112,10 +105,9 @@ public class AuthController {
     }
 
     @PostMapping(value = "/refresh", consumes = MediaType.ALL_VALUE)
-    public ResponseEntity refreshAccessToken(HttpServletRequest request,
+    public ResponseEntity refreshAccessToken(@RequestHeader("Refresh") String refreshToken,
                                              HttpServletResponse response) {
 
-        String refreshToken = request.getHeader("Refresh");
         String accessToken = this.authService.refreshAccessToken(refreshToken);
 
         response.setHeader("Authorization", accessToken);
