@@ -7,7 +7,6 @@ import com.pintor.purchase_module.domain.purchase.request.PurchaseCreateRequest;
 import com.pintor.purchase_module.domain.purchase.response.PurchaseCreateResponse;
 import com.pintor.purchase_module.domain.purchase.response.PurchaseListResponse;
 import com.pintor.purchase_module.domain.purchase.service.PurchaseService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,11 +26,9 @@ public class PurchaseController {
 
     @PostMapping
     public ResponseEntity createPurchase(@Valid @RequestBody PurchaseCreateRequest request, BindingResult bindingResult,
-                                         HttpServletRequest servletRequest) {
+                                         @RequestHeader("X-Member-Id") Long memberId) {
 
         log.info("purchase create request: {}", request);
-
-        Long memberId = Long.parseLong(servletRequest.getAttribute("X-Member-Id").toString());
 
         Purchase purchase = this.purchaseService.create(request, bindingResult, memberId);
 
@@ -67,11 +64,9 @@ public class PurchaseController {
                                        @RequestParam(value = "sort", defaultValue = "createdAt") String sort,
                                        @RequestParam(value = "dir", defaultValue = "desc") String dir,
                                        @RequestParam(value = "status", defaultValue = "all") String status,
-                                       HttpServletRequest servletRequest) {
+                                       @RequestHeader("X-Member-Id") Long memberId) {
 
         log.info("purchase list request: page={}, size={}, sort={}, dir={}, status={}", page, size, sort, dir, status);
-
-        Long memberId = Long.parseLong(servletRequest.getAttribute("X-Member-Id").toString());
 
         Page<Purchase> purchaseList = this.purchaseService.getPurchaseList(page, size, sort, dir, status.toUpperCase(), memberId);
 
@@ -86,11 +81,9 @@ public class PurchaseController {
 
     @GetMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
     public ResponseEntity purchaseDetail(@PathVariable(value = "id") Long id,
-                                         HttpServletRequest servletRequest) {
+                                         @RequestHeader("X-Member-Id") Long memberId) {
 
         log.info("purchase detail request: id={}", id);
-
-        Long memberId = Long.parseLong(servletRequest.getAttribute("X-Member-Id").toString());
 
         Purchase purchase = this.purchaseService.getPurchaseDetail(id, memberId);
 
@@ -105,11 +98,9 @@ public class PurchaseController {
 
     @PatchMapping(value = "/{id}/cancel", consumes = MediaType.ALL_VALUE)
     public ResponseEntity cancelPurchase(@PathVariable(value = "id") Long id,
-                                         HttpServletRequest servletRequest) {
+                                         @RequestHeader("X-Member-Id") Long memberId) {
 
         log.info("purchase cancel request: id={}", id);
-
-        Long memberId = Long.parseLong(servletRequest.getAttribute("X-Member-Id").toString());
 
         this.purchaseService.cancelPurchase(id, memberId);
 
@@ -123,11 +114,9 @@ public class PurchaseController {
 
     @PatchMapping(value = "/{id}/return", consumes = MediaType.ALL_VALUE)
     public ResponseEntity returnPurchase(@PathVariable(value = "id") Long id,
-                                         HttpServletRequest servletRequest) {
+                                         @RequestHeader("X-Member-Id") Long memberId) {
 
         log.info("purchase return request: id={}", id);
-
-        Long memberId = Long.parseLong(servletRequest.getAttribute("X-Member-Id").toString());
 
         this.purchaseService.returnPurchase(id, memberId);
 

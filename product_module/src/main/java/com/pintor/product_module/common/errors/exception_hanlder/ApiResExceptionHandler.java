@@ -16,6 +16,7 @@ public class ApiResExceptionHandler {
     @ExceptionHandler({ApiResException.class})
     public ResponseEntity handleApiResException(ApiResException e) {
         ResData resData = e.getResData();
+        log.error("[Request Error: {}] {}", resData.getCode(), resData.getMessage());
         return ResponseEntity
                 .status(resData.getStatus())
                 .body(resData);

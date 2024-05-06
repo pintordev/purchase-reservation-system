@@ -1,16 +1,15 @@
-package com.pintor.purchase_module.common.errors.exception_hanlder;
+package com.pintor.api_gateway.errors.exception_hanlder;
 
-import com.pintor.purchase_module.common.errors.exception.ApiResException;
-import com.pintor.purchase_module.common.response.FailCode;
-import com.pintor.purchase_module.common.response.ResData;
+import com.pintor.api_gateway.errors.exception.ApiResException;
+import com.pintor.api_gateway.response.FailCode;
+import com.pintor.api_gateway.response.ResData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @Slf4j
-@RestControllerAdvice(annotations = {RestController.class})
+@RestControllerAdvice
 public class ApiResExceptionHandler {
 
     @ExceptionHandler({ApiResException.class})

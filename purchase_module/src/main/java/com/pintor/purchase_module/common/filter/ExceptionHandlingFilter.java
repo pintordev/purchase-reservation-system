@@ -19,7 +19,7 @@ import java.io.IOException;
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class JwtExceptionFilter extends OncePerRequestFilter {
+public class ExceptionHandlingFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -27,11 +27,13 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (ApiResException e) {
             ResData resData = e.getResData();
+            log.error("[Request Error: {}] {}", resData.getCode(), resData.getMessage());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(resData.getStatus().value());
             response.getWriter().write(AppUtil.responseSerialize(resData));
         } catch (Exception e) {
             ResData resData = ResData.of(FailCode.INTERNAL_SERVER_ERROR);
+            log.error("[Request Error: {}] {}", resData.getCode(), resData.getMessage());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setStatus(resData.getStatus().value());
             response.getWriter().write(AppUtil.responseSerialize(resData));

@@ -5,7 +5,6 @@ import com.pintor.purchase_module.common.response.SuccessCode;
 import com.pintor.purchase_module.domain.cart_item.request.CartItemCreateRequest;
 import com.pintor.purchase_module.domain.cart_item.request.CartItemUpdateRequest;
 import com.pintor.purchase_module.domain.cart_item.service.CartItemService;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,11 +23,9 @@ public class CartItemController {
 
     @PostMapping
     public ResponseEntity createCartItem(@Valid @RequestBody CartItemCreateRequest request, BindingResult bindingResult,
-                                         HttpServletRequest servletRequest) {
+                                         @RequestHeader("X-Member-Id") Long memberId) {
 
         log.info("cart item create request: {}", request);
-
-        Long memberId = Long.parseLong(servletRequest.getAttribute("X-Member-Id").toString());
 
         this.cartItemService.create(request, bindingResult, memberId);
 
@@ -43,11 +40,9 @@ public class CartItemController {
     @PatchMapping(value = "/{id}")
     public ResponseEntity updateCartItem(@PathVariable(value = "id") Long id,
                                          @Valid @RequestBody CartItemUpdateRequest request, BindingResult bindingResult,
-                                         HttpServletRequest servletRequest) {
+                                         @RequestHeader("X-Member-Id") Long memberId) {
 
         log.info("cart item update request: {}", request);
-
-        Long memberId = Long.parseLong(servletRequest.getAttribute("X-Member-Id").toString());
 
         this.cartItemService.update(id, request, bindingResult, memberId);
 
@@ -61,11 +56,9 @@ public class CartItemController {
 
     @DeleteMapping(value = "/{id}", consumes = MediaType.ALL_VALUE)
     public ResponseEntity deleteCartItem(@PathVariable(value = "id") Long id,
-                                         HttpServletRequest servletRequest) {
+                                         @RequestHeader("X-Member-Id") Long memberId) {
 
         log.info("cart item delete request: id={}", id);
-
-        Long memberId = Long.parseLong(servletRequest.getAttribute("X-Member-Id").toString());
 
         this.cartItemService.delete(id, memberId);
 
