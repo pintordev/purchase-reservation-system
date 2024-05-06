@@ -15,7 +15,7 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
     private final AuthService authService;
 
-    public AuthorizationHeaderFilter(AuthService authService) {
+    private AuthorizationHeaderFilter(AuthService authService) {
         super(Config.class);
         this.authService = authService;
     }
