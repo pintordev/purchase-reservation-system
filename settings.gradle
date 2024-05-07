@@ -1,6 +1,7 @@
-rootProject.name = 'purchase_reservation_system'
+rootProject.name = 'purchase-reservation-system'
 
-include 'api_gateway'
-include 'member_module'
-include 'product_module'
-include 'purchase_module'
+include 'api-gateway'
+include 'eureka-server'
+include 'member-module'
+include 'product-module'
+include 'purchase-module'
