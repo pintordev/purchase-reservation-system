@@ -30,7 +30,7 @@ public class LoggingFilter implements GlobalFilter, Ordered {
         return chain.filter(exchange).then(Mono.fromRunnable(() -> {
             ServerHttpResponse response = exchange.getResponse();
             long endTime = System.currentTimeMillis();
-            log.info("[Response in {} ms] {}", endTime - startTime, response.getStatusCode());
+            log.info("[Response Id: {}] {} ms, {}", request.getId(), endTime - startTime, response.getStatusCode());
         }));
     }
 

@@ -2,6 +2,7 @@ package com.pintor.purchase_module.domain.purchase.status;
 
 public enum PurchaseStatus {
 
+    ON_PURCHASE("on_purchase"),
     PURCHASED("purchased"),
     CANCELLED("cancelled"),
     ON_DELIVERY("on_delivery"),

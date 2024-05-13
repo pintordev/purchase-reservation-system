@@ -15,6 +15,7 @@ public class FilterConfig {
     private final String memberModuleUrl = "lb://MEMBER-MODULE";
     private final String productModuleUrl = "lb://PRODUCT-MODULE";
     private final String purchaseModuleUrl = "lb://PURCHASE-MODULE";
+    private final String paymentModuleUrl = "lb://PAYMENT-MODULE";
 
     private final AuthorizationHeaderFilter authorizationHeaderFilter;
 
@@ -66,6 +67,10 @@ public class FilterConfig {
                                 .filter(authorizationHeaderFilter.apply(new AuthorizationHeaderFilter.Config()))
                                 .removeRequestHeader("Authorization"))
                         .uri(purchaseModuleUrl)
+                )
+                .route(r -> r.path("/payment_module/**")
+                        .filters(f -> f.rewritePath("/payment_module/(?<segment>.*)", "/api/${segment}"))
+                        .uri(paymentModuleUrl)
                 )
                 .build();
     }
