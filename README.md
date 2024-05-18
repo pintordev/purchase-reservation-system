@@ -3,7 +3,7 @@
 <details>
   <summary>Table of Contents</summary>
 
-- [About The Project](#about-the-project)
+- [About The Project](#about-the-project-anchor)
 - [Skills](#skills)
 - [Service Architecture](#service-architecture)
 - [ERD](#erd)
@@ -15,7 +15,7 @@
   - [Projects](#projects-docs)
 </details>
 
-<a id="about-the-project"></a>
+<a id="about-the-project-anchor"></a>
 ## About The Project
 본 프로젝트는 예약 구매 시스템을 구현한 것입니다.
 사용자는 상품을 예약하고, 예약한 상품을 구매할 수 있습니다.
