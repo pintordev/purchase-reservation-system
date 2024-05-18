@@ -3,16 +3,16 @@
 <details>
   <summary>Table of Contents</summary>
 
-- [About The Project](#about-the-project)
-- [Skills](#skills)
-- [Service Architecture](#service-architecture)
-- [ERD](#erd)
-- [Getting Started](#getting-started)
-- [Features](#features)
-- [Troubleshooting](#troubleshooting)
-- [Docs](#docs)
-  - [API](#api)
-  - [Projects](#projects)
+- [About The Project](#user-content-about-the-project)
+- [Skills](#user-content-skills)
+- [Service Architecture](#user-content-service-architecture)
+- [ERD](#user-content-erd)
+- [Getting Started](#user-content-getting-started)
+- [Features](#user-content-features)
+- [Troubleshooting](#user-content-troubleshooting)
+- [Docs](#user-content-docs)
+  - [API](#user-content-api-docs---direct-link)
+  - [Projects](#user-content-projects-docs---direct-link)
 </details>
 
 ## About The Project
